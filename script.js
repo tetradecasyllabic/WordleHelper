@@ -25,7 +25,10 @@ function addGuess(word) {
     return;
   }
 
-  const row = [];
+  // Create a row wrapper
+  const rowDiv = document.createElement("div");
+  rowDiv.classList.add("row");
+
   for (let i = 0; i < 5; i++) {
     const cell = document.createElement("div");
     cell.classList.add("cell", "black");
@@ -37,10 +40,12 @@ function addGuess(word) {
       cell.dataset.state = states[next];
       cell.className = "cell " + states[next];
     });
-    grid.appendChild(cell);
-    row.push(cell);
+    rowDiv.appendChild(cell);
   }
 
+  grid.appendChild(rowDiv);
+
+  // Save guess with dummy stats
   guesses.push({ word, entropy: Math.random(), expected: (Math.random() * 3 + 2).toFixed(2) });
   updateResults();
 }
