@@ -1,100 +1,80 @@
-const grid = document.getElementById('grid');
-const wordInput = document.getElementById('wordInput');
-const entryForm = document.getElementById('entryForm');
-const sortSelect = document.getElementById('sortSelect');
+let words = [];
+let guesses = [];
 
-let wordList = [];
-let words = []; // array of { word: string, states: [0,1,2,...] }
-const maxRows = 6;
+// Load words.txt
+fetch("words.txt")
+  .then(res => res.text())
+  .then(text => {
+    words = text.split("\n").map(w => w.trim().toLowerCase()).filter(w => w.length === 5);
+    console.log("Loaded words:", words.length);
+  });
 
-// States for each letter: 0 = absent (black), 1 = present (yellow), 2 = correct (green)
-const STATE_CLASS = ['absent', 'present', 'correct'];
-const STATE_NAMES = ['Absent', 'Present', 'Correct'];
+// Elements
+const guessInput = document.getElementById("guessInput");
+const submitGuess = document.getElementById("submitGuess");
+const grid = document.getElementById("grid");
+const sortSelect = document.getElementById("sortSelect");
+const results = document.getElementById("results");
 
-// Load words from words.txt on page load
-async function loadWords() {
-  try {
-    const response = await fetch('words.txt');
-    const text = await response.text();
-    wordList = text.trim().split('\n').map(w => w.trim().toLowerCase()).filter(w => w.length === 5);
-  } catch (e) {
-    console.error('Could not load words.txt', e);
-  }
-}
-loadWords();
+// Cycle states: black → yellow → green
+const states = ["black", "yellow", "green"];
 
-// Render the grid rows and letter states
-function render() {
-  let sorted = [...words];
-  // Sort words by selected method (placeholders: replace with real logic)
-  switch (sortSelect.value) {
-    case 'entropy':
-      sorted.sort((a,b) => fakeEntropy(b.word) - fakeEntropy(a.word));
-      break;
-    case 'expected':
-      sorted.sort((a,b) => fakeExpected(a.word) - fakeExpected(b.word));
-      break;
-    case 'overall':
-      sorted.sort((a,b) => (fakeEntropy(b.word) + 20 - fakeExpected(b.word)) - (fakeEntropy(a.word) + 20 - fakeExpected(a.word)));
-      break;
+function addGuess(word) {
+  if (!words.includes(word)) {
+    alert("Not in word list!");
+    return;
   }
 
-  grid.innerHTML = '';
-  sorted.forEach((entry, i) => {
-    const row = document.createElement('div');
-    row.className = 'row';
-    entry.word.split('').forEach((ch, idx) => {
-      const cell = document.createElement('div');
-      cell.className = 'letter ' + STATE_CLASS[entry.states[idx]];
-      cell.innerText = ch.toUpperCase();
-      cell.title = STATE_NAMES[entry.states[idx]];
-      cell.tabIndex = 0;
-      // Rotate letter state on click 
-      cell.onclick = () => {
-        entry.states[idx] = (entry.states[idx] + 1) % 3;
-        render();
-      };
-      row.appendChild(cell);
+  const row = [];
+  for (let i = 0; i < 5; i++) {
+    const cell = document.createElement("div");
+    cell.classList.add("cell", "black");
+    cell.textContent = word[i].toUpperCase();
+    cell.dataset.state = "black";
+    cell.addEventListener("click", () => {
+      let curr = states.indexOf(cell.dataset.state);
+      let next = (curr + 1) % states.length;
+      cell.dataset.state = states[next];
+      cell.className = "cell " + states[next];
     });
-    grid.appendChild(row);
+    grid.appendChild(cell);
+    row.push(cell);
+  }
+
+  guesses.push({ word, entropy: Math.random(), expected: (Math.random() * 3 + 2).toFixed(2) });
+  updateResults();
+}
+
+function updateResults() {
+  let sorted = [...guesses];
+  const mode = sortSelect.value;
+
+  if (mode === "entropy") {
+    sorted.sort((a, b) => b.entropy - a.entropy);
+  } else if (mode === "expected") {
+    sorted.sort((a, b) => a.expected - b.expected);
+  } else if (mode === "combined") {
+    sorted.sort((a, b) => (b.entropy / a.expected) - (a.entropy / b.expected));
+  }
+
+  results.innerHTML = "<h3>Guesses</h3>";
+  sorted.forEach(g => {
+    results.innerHTML += `
+      <div>
+        <strong>${g.word.toUpperCase()}</strong> 
+        | Entropy: ${g.entropy.toFixed(2)} 
+        | Exp: ${g.expected}
+      </div>`;
   });
 }
 
-// Placeholder sorting functions for demonstration
-function fakeEntropy(word) {
-  return [...word].reduce((a,b) => a + b.charCodeAt(0) % 3, 0);
-}
-function fakeExpected(word) {
-  return 1 + (word.charCodeAt(0) % 4);
-}
-
-// Add a new word with initial states to grid
-entryForm.onsubmit = e => {
-  e.preventDefault();
-  let val = wordInput.value.trim().toLowerCase();
-  if (!/^[a-z]{5}$/.test(val)) {
-    alert('Enter a valid 5-letter word');
-    wordInput.focus();
-    return;
+// Events
+submitGuess.addEventListener("click", () => {
+  const word = guessInput.value.toLowerCase();
+  if (word.length === 5) {
+    addGuess(word);
+    guessInput.value = "";
   }
-  // Optional: Ensure word is in wordList
-  if (!wordList.includes(val)) {
-    alert('Word not in dictionary');
-    wordInput.focus();
-    return;
-  }
-  if (words.length >= maxRows) {
-    alert('Max of 6 words reached');
-    wordInput.value = '';
-    return;
-  }
-  words.push({ word: val, states: [0, 0, 0, 0, 0] });
-  wordInput.value = '';
-  wordInput.focus();
-  render();
-};
+});
 
-sortSelect.onchange = render;
-
-// Initial render call
-render();
+sortSelect.addEventListener("change", updateResults);
