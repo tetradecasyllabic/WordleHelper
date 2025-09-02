@@ -5,7 +5,7 @@
    - sorting: lowest exp, highest entropy, best overall
 */
 
-const RAW_URL = "words.txt"; // local file in repo root
+const RAW_URL = ¨words.txt¨; // local file in repo root
 const MAX_CANDIDATES = 120;  // tune for performance
 
 let allWords = [];      // all allowed guesses
