@@ -8,22 +8,36 @@
 </head>
 <body>
   <main id="app">
-    <section class="topbar">
-      <div class="left">
+    <div class="topbar">
+      <div class="controls-left">
         <input id="guessInput" type="text" maxlength="5" placeholder="type guess (5 letters)" />
-        <button id="addRowBtn">Add Row</button>
-        <button id="applyBtn" title="Apply feedback from last added row">Apply</button>
-        <button id="resetBtn">Reset</button>
+        <button id="addRowBtn" title="Add a guess row">Add</button>
+        <button id="applyBtn" title="Apply feedback from the last row">Apply</button>
+        <button id="resetBtn" title="Reset everything">Reset</button>
       </div>
 
-      <div class="right">
+      <div class="controls-right">
         <label for="sortSelect">Sort:</label>
         <select id="sortSelect">
           <option value="exp">Lowest exp</option>
           <option value="entropy">Highest entropy</option>
           <option value="overall">Best overall</option>
         </select>
-        <div id="status">Loading words…</div>
+        <button id="copyBtn" title="Copy remaining words">Copy</button>
+        <button id="downloadBtn" title="Download remaining words">Download</button>
+      </div>
+    </div>
+
+    <div id="statusRow">
+      <div id="status">Loading words…</div>
+      <div id="smallNotes">If loading fails, paste/upload your word list below. ⚠️</div>
+    </div>
+
+    <section id="fallback" class="hidden">
+      <textarea id="pasteBox" placeholder="Paste words.txt content (one word per line)"></textarea>
+      <div class="fallbackBtns">
+        <button id="pasteBtn">Use pasted list</button>
+        <input id="fileInput" type="file" accept=".txt" />
       </div>
     </section>
 
@@ -45,14 +59,16 @@
       </div>
     </section>
 
-    <footer id="foot">
+    <footer>
       <div class="legend">
-        <span class="legend-item"><span class="tile legend-tile state-2">G</span> correct (green)</span>
-        <span class="legend-item"><span class="tile legend-tile state-1">Y</span> present (yellow)</span>
-        <span class="legend-item"><span class="tile legend-tile state-0">X</span> absent (gray)</span>
+        <span class="legend-item"><span class="tile legend-tile state-2">G</span> green</span>
+        <span class="legend-item"><span class="tile legend-tile state-1">Y</span> yellow</span>
+        <span class="legend-item"><span class="tile legend-tile state-0">X</span> gray</span>
       </div>
-      <div class="note">
-        <strong>Score:</strong> the simple letter-frequency score used as a tie-breaker (higher = word contains more frequent unique letters).
+      <div class="explain">
+        <strong>Score</strong> = simple letter-frequency tie-breaker (higher = uses more frequent unique letters).  
+        <strong>exp</strong> = expected number of remaining solutions after playing that guess (lower = better).  
+        <strong>entropy</strong> = information (bits) gained (higher = more informative).
       </div>
     </footer>
   </main>
