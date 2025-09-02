@@ -1,58 +1,110 @@
-/* Wordle Helper - frontend only (works with local words.txt)
-   - rows append at bottom
+/* Wordle Helper - frontend only (words.txt in repo root or paste/upload fallback)
+   - robust fetch + fallback
+   - rows append bottom
    - tile click cycles 0->1->2->0 (gray->yellow->green->gray)
    - shows Top 10 suggestions or final candidate list when <=10
    - sorting: lowest exp, highest entropy, best overall
+   - copy/download remaining words
 */
 
-const RAW_URL = ¨words.txt¨; // local file in repo root
-const MAX_CANDIDATES = 120;  // tune for performance
+const RAW_URL = "words.txt"; // local file in repo root
+const MAX_CANDIDATES = 120;  // trade-off perf vs quality
 
-let allWords = [];      // all allowed guesses
-let possibleWords = []; // remaining possible solutions
+// state
+let allWords = [];
+let possibleWords = [];
 let lastSuggestionResults = [];
 
-const guessInputEl = () => document.getElementById("guessInput");
-const addRowBtn = document.getElementById("addRowBtn");
-const applyBtn = document.getElementById("applyBtn");
-const resetBtn = document.getElementById("resetBtn");
-const statusEl = document.getElementById("status");
-const boardEl = document.getElementById("board");
-const suggestionsEl = document.getElementById("suggestions");
-const computingEl = document.getElementById("computing");
-const possibleCountEl = document.getElementById("possibleCount");
-const minGuessesEl = document.getElementById("minGuesses");
-const expectedAfterEl = document.getElementById("expectedAfter");
-const sortSelect = document.getElementById("sortSelect");
-const suggestTitle = document.getElementById("suggestTitle");
+const el = id => document.getElementById(id);
+const guessInputEl = () => el("guessInput");
+
+const addRowBtn = el("addRowBtn");
+const applyBtn = el("applyBtn");
+const resetBtn = el("resetBtn");
+const statusEl = el("status");
+const boardEl = el("board");
+const suggestionsEl = el("suggestions");
+const computingEl = el("computing");
+const possibleCountEl = el("possibleCount");
+const minGuessesEl = el("minGuesses");
+const expectedAfterEl = el("expectedAfter");
+const sortSelect = el("sortSelect");
+const suggestTitle = el("suggestTitle");
+const fallbackSection = el("fallback");
+const pasteBox = el("pasteBox");
+const pasteBtn = el("pasteBtn");
+const fileInput = el("fileInput");
+const copyBtn = el("copyBtn");
+const downloadBtn = el("downloadBtn");
 
 document.addEventListener("DOMContentLoaded", init);
 addRowBtn.addEventListener("click", onAddRow);
 applyBtn.addEventListener("click", onApplyFeedback);
 resetBtn.addEventListener("click", resetAll);
-sortSelect.addEventListener("change", () => computeAndShowSuggestions());
+sortSelect.addEventListener("change", computeAndShowSuggestions);
+pasteBtn && pasteBtn.addEventListener("click", usePasted);
+fileInput && fileInput.addEventListener("change", handleFile);
+copyBtn.addEventListener("click", copyRemaining);
+downloadBtn.addEventListener("click", downloadRemaining);
 guessInputEl().addEventListener("keydown", (e) => {
   if (e.key === "Enter") onAddRow();
 });
 
+/* ---------- init & load words ---------- */
+
 async function init(){
-  setStatus("Loading words...");
+  setStatus("Loading words…");
   try {
     const r = await fetch(RAW_URL, {cache: "no-cache"});
+    if (!r.ok) throw new Error("fetch failed");
     const txt = await r.text();
     allWords = txt.split(/\r?\n/).map(s => s.trim().toLowerCase()).filter(Boolean);
     possibleWords = [...allWords];
     setStatus(`Loaded ${allWords.length} words.`);
+    fallbackSection.classList.add("hidden");
     updateStatsAndSuggestions();
+    // auto-fill starter guess (best base score) — optional; comment if you don't want it
+    // suggestStarter();
   } catch (err) {
-    console.error(err);
-    setStatus("Failed to load words. Put words.txt in repo root.");
+    console.warn("Fetch words failed:", err);
+    setStatus("Failed to load words.txt — paste/upload below.");
+    fallbackSection.classList.remove("hidden");
   }
 }
 
 function setStatus(s){ statusEl.textContent = s; }
 
-/* ---------- Board & tiles ---------- */
+/* ---------- fallback (paste/upload) ---------- */
+
+function usePasted(){
+  const txt = pasteBox.value || "";
+  const arr = txt.split(/\r?\n/).map(s=>s.trim().toLowerCase()).filter(Boolean);
+  if (!arr.length){ alert("Paste a list of words (one per line)."); return; }
+  allWords = arr;
+  possibleWords = [...allWords];
+  fallbackSection.classList.add("hidden");
+  setStatus(`Loaded ${allWords.length} words from paste.`);
+  updateStatsAndSuggestions();
+}
+
+function handleFile(e){
+  const f = e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const txt = ev.target.result || "";
+    const arr = txt.split(/\r?\n/).map(s=>s.trim().toLowerCase()).filter(Boolean);
+    if (!arr.length){ alert("File contains no words."); return; }
+    allWords = arr;
+    possibleWords = [...allWords];
+    fallbackSection.classList.add("hidden");
+    setStatus(`Loaded ${allWords.length} words from file.`);
+    updateStatsAndSuggestions();
+  };
+  reader.readAsText(f);
+}
+
+/* ---------- board & tiles ---------- */
 
 function onAddRow(){
   const guess = guessInputEl().value.trim().toLowerCase();
@@ -72,7 +124,7 @@ function onAddRow(){
     tile.addEventListener("click", () => cycleTileState(tile));
     row.appendChild(tile);
   }
-  boardEl.appendChild(row); // append to bottom (fix)
+  boardEl.appendChild(row); // append bottom
   guessInputEl().value = "";
   guessInputEl().focus();
 }
@@ -85,20 +137,21 @@ function cycleTileState(tile){
   tile.classList.add(`state-${s}`);
 }
 
-/* ---------- Apply feedback & filtering ---------- */
+/* ---------- apply feedback & filtering ---------- */
 
 function onApplyFeedback(){
-  // apply to the top-most (earliest) row that has not been applied? We'll apply to the last row added
   const rows = boardEl.querySelectorAll(".row");
   if (!rows.length){ alert("Add a guess row first."); return; }
   const row = rows[rows.length - 1]; // last row (bottom)
   const guess = row.dataset.guess;
   const states = Array.from(row.querySelectorAll(".tile")).map(t => parseInt(t.dataset.state || "0",10));
-  const pattern = states.join(""); // e.g., "20100"
+  const pattern = states.join("");
   possibleWords = possibleWords.filter(sol => getPattern(guess, sol) === pattern);
   setStatus(`Applied feedback for ${guess.toUpperCase()}. Remaining: ${possibleWords.length}`);
   updateStatsAndSuggestions();
 }
+
+/* ---------- reset ---------- */
 
 function resetAll(){
   possibleWords = [...allWords];
@@ -108,23 +161,20 @@ function resetAll(){
   updateStatsAndSuggestions();
 }
 
-/* ---------- Wordle pattern generator (correct duplicate handling) ---------- */
+/* ---------- pattern (correct duplicate handling) ---------- */
 
 function getPattern(guess, solution){
-  // returns string of digits length 5: 0 absent, 1 present, 2 correct
   const g = guess.split("");
   const s = solution.split("");
   const pattern = [0,0,0,0,0];
-  const used = [false, false, false, false, false];
+  const used = [false,false,false,false,false];
 
-  // greens first
   for (let i=0;i<5;i++){
     if (g[i] === s[i]){
       pattern[i] = 2;
       used[i] = true;
     }
   }
-  // yellows
   for (let i=0;i<5;i++){
     if (pattern[i] === 2) continue;
     for (let j=0;j<5;j++){
@@ -138,11 +188,11 @@ function getPattern(guess, solution){
   return pattern.join("");
 }
 
-/* ---------- Stats & suggestion flow ---------- */
+/* ---------- stats & suggestions ---------- */
 
 function updateStatsAndSuggestions(){
   possibleCountEl.textContent = possibleWords.length;
-  const bitsPerGuess = Math.log2(243); // 3^5 patterns
+  const bitsPerGuess = Math.log2(243);
   const minG = Math.ceil(Math.log2(Math.max(1, possibleWords.length)) / bitsPerGuess);
   minGuessesEl.textContent = minG === 0 ? "0 (solved)" : String(minG);
   computeAndShowSuggestions();
@@ -155,41 +205,30 @@ async function computeAndShowSuggestions(){
   computingEl.classList.remove("hidden");
   await sleep(20);
 
-  // Endgame: if small pool, just list them
+  // Endgame: list remaining
   if (possibleWords.length <= 10){
     suggestTitle.textContent = "Remaining possible answers";
     suggestionsEl.innerHTML = "";
     for (const w of possibleWords){
       const li = document.createElement("li");
-      const left = document.createElement("div");
-      left.className = "sugg-left";
-      const wd = document.createElement("div");
-      wd.className = "sugg-word";
-      wd.textContent = w.toUpperCase();
-      const meta = document.createElement("div");
-      meta.className = "sugg-meta";
-      meta.textContent = "candidate";
-      left.appendChild(wd);
-      left.appendChild(meta);
-
-      const useBtn = document.createElement("button");
-      useBtn.className = "useBtn";
-      useBtn.textContent = "Use";
-      useBtn.addEventListener("click", () => { guessInputEl().value = w; guessInputEl().focus(); });
-
-      li.appendChild(left);
-      li.appendChild(useBtn);
+      const left = document.createElement("div"); left.className = "sugg-left";
+      const wd = document.createElement("div"); wd.className = "sugg-word"; wd.textContent = w.toUpperCase();
+      const meta = document.createElement("div"); meta.className = "sugg-meta"; meta.textContent = "candidate";
+      left.appendChild(wd); left.appendChild(meta);
+      const useBtn = document.createElement("button"); useBtn.className = "useBtn"; useBtn.textContent = "Use";
+      useBtn.addEventListener("click", ()=>{ guessInputEl().value = w; guessInputEl().focus(); });
+      li.appendChild(left); li.appendChild(useBtn);
       suggestionsEl.appendChild(li);
     }
     computingEl.classList.add("hidden");
-    suggestTitle.textContent = "Remaining possible answers";
     expectedAfterEl.textContent = possibleWords.length ? possibleWords.length : "—";
     return;
   }
 
+  // Normal mode
   suggestTitle.textContent = "Top suggestions";
 
-  // Stage 1: frequency base score
+  // frequency base
   const freq = {};
   for (const w of possibleWords){
     const seen = new Set();
@@ -201,7 +240,7 @@ async function computeAndShowSuggestions(){
     }
   }
   function baseScore(word){
-    let seen = new Set();
+    const seen = new Set();
     let s = 0;
     for (const ch of word){
       if (!seen.has(ch)){
@@ -223,7 +262,7 @@ async function computeAndShowSuggestions(){
     candidatePool = Array.from(combined);
   }
 
-  // Stage 2: expected remaining + entropy
+  // expected remaining + entropy
   const N = Math.max(1, possibleWords.length);
   const results = [];
 
@@ -237,7 +276,6 @@ async function computeAndShowSuggestions(){
     let sumSq = 0;
     for (const c of counts.values()) sumSq += c*c;
     const expectedRemaining = sumSq / N;
-
     let entropy = 0;
     for (const c of counts.values()){
       const p = c / N;
@@ -247,64 +285,97 @@ async function computeAndShowSuggestions(){
     if (idx % 40 === 0) await sleep(0);
   }
 
-  // compute overall combined score for "best overall"
-  // normalize metrics to 0-1 across results
+  // compute normalized overall
   const erMin = Math.min(...results.map(r=>r.expectedRemaining));
   const erMax = Math.max(...results.map(r=>r.expectedRemaining));
   const entMin = Math.min(...results.map(r=>r.entropy));
   const entMax = Math.max(...results.map(r=>r.entropy));
   const bsMin = Math.min(...results.map(r=>r.baseScore));
   const bsMax = Math.max(...results.map(r=>r.baseScore));
-
-  function norm(val, min, max){ return (max === min) ? 0.5 : ( (val - min) / (max - min) ); }
+  function norm(v, a, b){ return (b===a) ? 0.5 : ((v-a)/(b-a)); }
 
   for (const r of results){
-    const erN = norm(r.expectedRemaining, erMin, erMax); // lower is better
-    const entN = norm(r.entropy, entMin, entMax);         // higher is better
-    const bsN = norm(r.baseScore, bsMin, bsMax);          // higher is better
-    // overall: we want low expected, high entropy, high baseScore
-    // create combined score where higher is better overall
-    r.overall = ( (1 - erN) * 0.6 ) + ( entN * 0.3 ) + ( bsN * 0.1 );
+    const erN = norm(r.expectedRemaining, erMin, erMax); // lower better
+    const entN = norm(r.entropy, entMin, entMax); // higher better
+    const bsN = norm(r.baseScore, bsMin, bsMax); // higher better
+    r.overall = ((1 - erN) * 0.6) + (entN * 0.3) + (bsN * 0.1);
   }
 
-  // Sort according to user selection
+  // sort
   const mode = sortSelect.value;
   if (mode === "entropy"){
     results.sort((a,b) => b.entropy - a.entropy || a.expectedRemaining - b.expectedRemaining);
   } else if (mode === "overall"){
     results.sort((a,b) => b.overall - a.overall || a.expectedRemaining - b.expectedRemaining);
-  } else { // default exp
+  } else {
     results.sort((a,b) => a.expectedRemaining - b.expectedRemaining || b.entropy - a.entropy);
   }
 
   lastSuggestionResults = results;
   const top10 = results.slice(0,10);
-
   expectedAfterEl.textContent = top10.length ? Math.round(top10[0].expectedRemaining) : "—";
 
   suggestionsEl.innerHTML = "";
   for (const r of top10){
     const li = document.createElement("li");
-    const left = document.createElement("div");
-    left.className = "sugg-left";
-    const wd = document.createElement("div");
-    wd.className = "sugg-word";
-    wd.textContent = r.word.toUpperCase();
-    const meta = document.createElement("div");
-    meta.className = "sugg-meta";
+    const left = document.createElement("div"); left.className = "sugg-left";
+    const wd = document.createElement("div"); wd.className = "sugg-word"; wd.textContent = r.word.toUpperCase();
+    const meta = document.createElement("div"); meta.className = "sugg-meta";
     meta.innerHTML = `exp: <strong>${r.expectedRemaining.toFixed(1)}</strong> • entropy: ${r.entropy.toFixed(2)} • score: ${r.baseScore}`;
-    left.appendChild(wd);
-    left.appendChild(meta);
-
-    const useBtn = document.createElement("button");
-    useBtn.className = "useBtn";
-    useBtn.textContent = "Use";
-    useBtn.addEventListener("click", () => { guessInputEl().value = r.word; guessInputEl().focus(); });
-
-    li.appendChild(left);
-    li.appendChild(useBtn);
+    left.appendChild(wd); left.appendChild(meta);
+    const useBtn = document.createElement("button"); useBtn.className = "useBtn"; useBtn.textContent = "Use";
+    useBtn.addEventListener("click", ()=>{ guessInputEl().value = r.word; guessInputEl().focus(); });
+    li.appendChild(left); li.appendChild(useBtn);
     suggestionsEl.appendChild(li);
   }
 
   computingEl.classList.add("hidden");
 }
+
+/* ---------- copy / download remaining ---------- */
+
+function copyRemaining(){
+  if (!possibleWords.length){ alert("No remaining words."); return; }
+  navigator.clipboard.writeText(possibleWords.join("\n")).then(()=> {
+    alert("Copied remaining words to clipboard ✅");
+  }, ()=> {
+    alert("Copy failed — browser prevented it.");
+  });
+}
+
+function downloadRemaining(){
+  if (!possibleWords.length){ alert("No remaining words."); return; }
+  const blob = new Blob([possibleWords.join("\n")], {type: "text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = "remaining-words.txt"; document.body.appendChild(a); a.click();
+  a.remove(); URL.revokeObjectURL(url);
+}
+
+/* ---------- optional: starter suggestion (uncomment in init to enable) ---------- */
+
+async function suggestStarter(){
+  if (!allWords.length) return;
+  // cheap: pick top baseScore across allWords
+  const freq = {};
+  for (const w of allWords){
+    const seen = new Set();
+    for (const ch of w){
+      if (!seen.has(ch)){
+        freq[ch] = (freq[ch] || 0) + 1;
+        seen.add(ch);
+      }
+    }
+  }
+  let best = null, bestScore = -1;
+  for (const w of allWords){
+    const seen = new Set();
+    let s = 0;
+    for (const ch of w){
+      if (!seen.has(ch)){ s += (freq[ch]||0); seen.add(ch); }
+    }
+    if (s > bestScore){ bestScore = s; best = w; }
+  }
+  if (best) { guessInputEl().value = best; }
+}
+
+/* ---------- end of file ---------- */
