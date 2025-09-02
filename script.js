@@ -1,85 +1,101 @@
 let words = [];
-let guesses = [];
+let grid = [];
+const gridDiv = document.getElementById('grid');
+const guessInput = document.getElementById('guessInput');
+const addGuess = document.getElementById('addGuess');
+const suggestionList = document.getElementById('suggestionList');
+const entropyDisplay = document.getElementById('entropy');
+const expectedDisplay = document.getElementById('expected');
 
-// Load words.txt
-fetch("words.txt")
+// Load words
+fetch('words.txt')
   .then(res => res.text())
-  .then(text => {
-    words = text.split("\n").map(w => w.trim().toLowerCase()).filter(w => w.length === 5);
-    console.log("Loaded words:", words.length);
+  .then(txt => {
+    words = txt.split('\n').map(w => w.trim().toLowerCase()).filter(w => w.length === 5);
+    updateSuggestions();
   });
 
-// Elements
-const guessInput = document.getElementById("guessInput");
-const submitGuess = document.getElementById("submitGuess");
-const grid = document.getElementById("grid");
-const sortSelect = document.getElementById("sortSelect");
-const results = document.getElementById("results");
-
-// Cycle states: black → yellow → green
-const states = ["black", "yellow", "green"];
-
-function addGuess(word) {
-  if (!words.includes(word)) {
-    alert("Not in word list!");
+// Add guess to grid
+addGuess.addEventListener('click', () => {
+  const guess = guessInput.value.toLowerCase();
+  if(guess.length !== 5 || !words.includes(guess)) {
+    alert('Invalid word!');
     return;
   }
-
-  // Create a row wrapper
-  const rowDiv = document.createElement("div");
-  rowDiv.classList.add("row");
-
-  for (let i = 0; i < 5; i++) {
-    const cell = document.createElement("div");
-    cell.classList.add("cell", "black");
-    cell.textContent = word[i].toUpperCase();
-    cell.dataset.state = "black";
-    cell.addEventListener("click", () => {
-      let curr = states.indexOf(cell.dataset.state);
-      let next = (curr + 1) % states.length;
-      cell.dataset.state = states[next];
-      cell.className = "cell " + states[next];
-    });
-    rowDiv.appendChild(cell);
-  }
-
-  grid.appendChild(rowDiv);
-
-  // Save guess with dummy stats
-  guesses.push({ word, entropy: Math.random(), expected: (Math.random() * 3 + 2).toFixed(2) });
-  updateResults();
-}
-
-function updateResults() {
-  let sorted = [...guesses];
-  const mode = sortSelect.value;
-
-  if (mode === "entropy") {
-    sorted.sort((a, b) => b.entropy - a.entropy);
-  } else if (mode === "expected") {
-    sorted.sort((a, b) => a.expected - b.expected);
-  } else if (mode === "combined") {
-    sorted.sort((a, b) => (b.entropy / a.expected) - (a.entropy / b.expected));
-  }
-
-  results.innerHTML = "<h3>Guesses</h3>";
-  sorted.forEach(g => {
-    results.innerHTML += `
-      <div>
-        <strong>${g.word.toUpperCase()}</strong> 
-        | Entropy: ${g.entropy.toFixed(2)} 
-        | Exp: ${g.expected}
-      </div>`;
-  });
-}
-
-// Events
-submitGuess.addEventListener("click", () => {
-  const word = guessInput.value.toLowerCase();
-  if (word.length === 5) {
-    addGuess(word);
-    guessInput.value = "";
-  }
+  addGuessToGrid(guess);
+  guessInput.value = '';
+  updateSuggestions();
 });
 
-sortSelect.addEventListener("change", updateResults);
+// Create grid cells
+function addGuessToGrid(guess) {
+  const row = [];
+  for(let i=0;i<5;i++){
+    const cell = document.createElement('div');
+    cell.className = 'cell absent';
+    cell.textContent = guess[i];
+    cell.addEventListener('click', () => {
+      cycleCell(cell);
+      updateSuggestions();
+    });
+    gridDiv.appendChild(cell);
+    row.push(cell);
+  }
+  grid.push(row);
+}
+
+// Cycle cell state: absent → present → correct → absent
+function cycleCell(cell){
+  if(cell.classList.contains('absent')){
+    cell.classList.remove('absent');
+    cell.classList.add('present');
+  } else if(cell.classList.contains('present')){
+    cell.classList.remove('present');
+    cell.classList.add('correct');
+  } else {
+    cell.classList.remove('correct');
+    cell.classList.add('absent');
+  }
+}
+
+// Calculate entropy and expected guesses (basic approx)
+function calculateEntropy(wordList){
+  const total = wordList.length;
+  if(total === 0) return 0;
+  return Math.log2(total).toFixed(2);
+}
+
+function calculateExpectedGuesses(wordList){
+  return Math.max(1, (Math.log2(wordList.length) / Math.log2(1.5)).toFixed(1));
+}
+
+// Update suggestion list
+function updateSuggestions(){
+  // Filter words based on grid state
+  let possible = [...words];
+  
+  grid.forEach(row => {
+    row.forEach((cell, i) => {
+      const letter = cell.textContent;
+      if(cell.classList.contains('correct')){
+        possible = possible.filter(w => w[i] === letter);
+      } else if(cell.classList.contains('present')){
+        possible = possible.filter(w => w.includes(letter) && w[i] !== letter);
+      } else if(cell.classList.contains('absent')){
+        possible = possible.filter(w => !w.includes(letter));
+      }
+    });
+  });
+
+  // Update entropy and expected guesses
+  entropyDisplay.textContent = `Entropy: ${calculateEntropy(possible)}`;
+  expectedDisplay.textContent = `Expected guesses remaining: ${calculateExpectedGuesses(possible)}`;
+
+  // Show top suggestions
+  suggestionList.innerHTML = '';
+  possible.slice(0,10).forEach(w => {
+    const li = document.createElement('li');
+    li.textContent = w;
+    suggestionList.appendChild(li);
+  });
+}
