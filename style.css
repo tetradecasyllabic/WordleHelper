@@ -1,3 +1,4 @@
+/* === Body & container === */
 body {
   background: linear-gradient(135deg, #1e3c72, #2a5298);
   font-family: 'Arial', sans-serif;
@@ -15,18 +16,26 @@ body {
   text-align: center;
 }
 
+/* === Grid rows & cells === */
 #grid {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+.grid-row {
   display: grid;
   grid-template-columns: repeat(5, 50px);
-  grid-gap: 5px;
+  gap: 5px;
   justify-content: center;
-  margin-bottom: 20px;
 }
 
 .cell {
   width: 50px;
   height: 50px;
   border: 2px solid #fff;
+  border-radius: 5px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -34,38 +43,58 @@ body {
   font-size: 1.2em;
   cursor: pointer;
   user-select: none;
-  border-radius: 5px;
   transition: 0.2s;
 }
 
+/* === Cell colors === */
 .cell.absent { background: #3a3a3c; }
 .cell.present { background: #b59f3b; }
 .cell.correct { background: #538d4e; }
 
+/* === Input row === */
+.input-row {
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
 #guessInput {
   padding: 10px;
   font-size: 16px;
-  width: 70%;
+  flex: 1;
   border-radius: 5px;
   border: none;
-  margin-right: 5px;
 }
 
 button {
-  padding: 10px;
+  padding: 10px 15px;
   border: none;
   border-radius: 5px;
   background: #538d4e;
   color: #fff;
   font-weight: bold;
   cursor: pointer;
+  transition: 0.2s;
 }
 
 button:hover {
   background: #66a366;
 }
 
+/* === Stats & suggestions === */
 #stats, #suggestions {
-  margin-top: 20px;
   text-align: left;
+  margin-top: 20px;
+}
+
+#suggestions ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#suggestions li {
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
 }
