@@ -2,46 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Wordle Helper — Frontend-only</title>
+  <title>Wordle Helper</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>Wordle Helper 🤖🟩🟨⬛</h1>
-    <p class="sub">Type a guess, add it as a row, click tiles to set colors (black → yellow → green), then apply feedback to get smart suggestions.</p>
-  </header>
-
   <main>
     <section class="controls">
       <input id="guessInput" type="text" maxlength="5" placeholder="type guess (5 letters)" />
       <button id="addRowBtn">Add Row</button>
-      <button id="applyBtn" title="Apply feedback from last added row">Apply Feedback</button>
+      <button id="applyBtn">Apply Feedback</button>
       <button id="resetBtn">Reset</button>
       <div id="status">Loading words...</div>
     </section>
 
     <section id="boardSection">
-      <div id="board" aria-live="polite"></div>
+      <div id="board"></div>
     </section>
 
     <section id="info">
       <div id="stats">
         <strong>Possible solutions:</strong> <span id="possibleCount">—</span><br/>
-        <strong>Theoretical min guesses (info lower bound):</strong> <span id="minGuesses">—</span><br/>
+        <strong>Theoretical min guesses:</strong> <span id="minGuesses">—</span><br/>
         <strong>Expected remaining after best guess:</strong> <span id="expectedAfter">—</span>
       </div>
 
       <div id="suggestionsWrap">
-        <h2>Top suggestions (best first)</h2>
+        <h2>Top suggestions</h2>
         <div id="computing" class="hidden">Computing suggestions... ⏳</div>
         <ol id="suggestions"></ol>
       </div>
     </section>
-
-    <footer>
-      <small>Words source: gist raw (keeps list updated). Works client-side → safe for GitHub Pages.</small>
-    </footer>
   </main>
 
   <script src="script.js"></script>
