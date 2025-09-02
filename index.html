@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -7,32 +7,54 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main>
-    <section class="controls">
-      <input id="guessInput" type="text" maxlength="5" placeholder="type guess (5 letters)" />
-      <button id="addRowBtn">Add Row</button>
-      <button id="applyBtn">Apply Feedback</button>
-      <button id="resetBtn">Reset</button>
-      <div id="status">Loading words...</div>
+  <main id="app">
+    <section class="topbar">
+      <div class="left">
+        <input id="guessInput" type="text" maxlength="5" placeholder="type guess (5 letters)" />
+        <button id="addRowBtn">Add Row</button>
+        <button id="applyBtn" title="Apply feedback from last added row">Apply</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+
+      <div class="right">
+        <label for="sortSelect">Sort:</label>
+        <select id="sortSelect">
+          <option value="exp">Lowest exp</option>
+          <option value="entropy">Highest entropy</option>
+          <option value="overall">Best overall</option>
+        </select>
+        <div id="status">Loading words…</div>
+      </div>
     </section>
 
     <section id="boardSection">
-      <div id="board"></div>
+      <div id="board" aria-live="polite"></div>
     </section>
 
     <section id="info">
       <div id="stats">
-        <strong>Possible solutions:</strong> <span id="possibleCount">—</span><br/>
-        <strong>Theoretical min guesses:</strong> <span id="minGuesses">—</span><br/>
-        <strong>Expected remaining after best guess:</strong> <span id="expectedAfter">—</span>
+        <div><strong>Possible:</strong> <span id="possibleCount">—</span></div>
+        <div><strong>Min guesses (info lb):</strong> <span id="minGuesses">—</span></div>
+        <div><strong>Expected remaining (best):</strong> <span id="expectedAfter">—</span></div>
       </div>
 
       <div id="suggestionsWrap">
-        <h2>Top suggestions</h2>
+        <h3 id="suggestTitle">Top suggestions</h3>
         <div id="computing" class="hidden">Computing suggestions... ⏳</div>
         <ol id="suggestions"></ol>
       </div>
     </section>
+
+    <footer id="foot">
+      <div class="legend">
+        <span class="legend-item"><span class="tile legend-tile state-2">G</span> correct (green)</span>
+        <span class="legend-item"><span class="tile legend-tile state-1">Y</span> present (yellow)</span>
+        <span class="legend-item"><span class="tile legend-tile state-0">X</span> absent (gray)</span>
+      </div>
+      <div class="note">
+        <strong>Score:</strong> the simple letter-frequency score used as a tie-breaker (higher = word contains more frequent unique letters).
+      </div>
+    </footer>
   </main>
 
   <script src="script.js"></script>
