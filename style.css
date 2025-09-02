@@ -7,7 +7,6 @@
 }
 
 *{box-sizing:border-box}
-
 body{
   margin:0;
   background:var(--bg);
@@ -35,7 +34,7 @@ main{
 
 #board{
   display:flex;
-  flex-direction:column;
+  flex-direction:column; /* rows stack downward */
   gap:8px;
   margin-bottom:16px;
   align-items:center;
@@ -63,7 +62,6 @@ main{
   text-transform:uppercase;
   background:#121213;
 }
-
 .tile.state-0{ background:#3a3a3c; color:#fff; border-color:#3a3a3c; }
 .tile.state-1{ background:#c9b458; color:#000; border-color:#c9b458; }
 .tile.state-2{ background:#6aaa64; color:#fff; border-color:#6aaa64; }
@@ -79,30 +77,4 @@ main{
   background:var(--panel);
   padding:12px;
   border-radius:8px;
-}
-
-#suggestionsWrap ol{
-  list-style:none;
-  padding-left:0;
-}
-
-#suggestionsWrap li{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:6px;
-}
-
-#suggestionsWrap button{
-  background:#538d4e;
-  border:none;
-  border-radius:4px;
-  padding:4px 6px;
-  color:#fff;
-  cursor:pointer;
-  font-weight:600;
-}
-
-#computing.hidden{
-  display:none;
 }
