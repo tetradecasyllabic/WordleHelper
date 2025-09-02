@@ -1,8 +1,9 @@
 :root{
-  --bg: #121213;
-  --panel: #1a1a1b;
-  --text: #ffffff;
-  --muted: #9b9b9b;
+  --bg: #0f1112;
+  --panel: #161718;
+  --muted: #9aa0a6;
+  --text: #e6eef3;
+  --accent: #3b82f6;
   --tile-size: 56px;
 }
 
@@ -11,60 +12,90 @@ body{
   margin:0;
   background:var(--bg);
   color:var(--text);
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
   display:flex;
-  min-height:100vh;
   justify-content:center;
-  align-items:flex-start;
+  padding:18px;
+  min-height:100vh;
 }
 
-main{
+main#app{
   width:100%;
-  max-width:980px;
-  padding:24px;
+  max-width:1100px;
 }
 
-.controls{
+/* Topbar controls */
+.topbar{
   display:flex;
-  gap:8px;
+  justify-content:space-between;
+  gap:12px;
   align-items:center;
-  margin-bottom:20px;
-  flex-wrap:wrap;
+  margin-bottom:14px;
 }
+.topbar .left{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.topbar .right{ display:flex; gap:10px; align-items:center; }
 
+input#guessInput{
+  padding:10px 12px;
+  font-size:16px;
+  width:200px;
+  border-radius:8px;
+  border:1px solid #222;
+  background:#0b0c0d;
+  color:var(--text);
+}
+button{
+  padding:8px 12px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  font-weight:700;
+  background:var(--accent);
+  color:white;
+}
+button#applyBtn{ background:#10b981; } /* green apply */
+button#resetBtn{ background:#ef4444; } /* red reset */
+
+#status{ color:var(--muted); font-size:13px; margin-left:6px; }
+
+/* Board */
 #board{
   display:flex;
   flex-direction:column; /* rows stack downward */
-  gap:8px;
-  margin-bottom:16px;
+  gap:10px;
+  margin-bottom:18px;
   align-items:center;
 }
 
+/* Row */
 .row{
   display:grid;
   grid-template-columns: repeat(5, var(--tile-size));
-  gap:8px;
+  gap:10px;
 }
 
+/* Tile */
 .tile{
   width:var(--tile-size);
   height:var(--tile-size);
   display:flex;
   align-items:center;
   justify-content:center;
-  font-weight:800;
+  font-weight:900;
   font-size:22px;
-  border-radius:6px;
-  border:2px solid #3b3b3b;
+  border-radius:8px;
+  border:2px solid #2b2b2c;
   color:var(--text);
   user-select:none;
   cursor:pointer;
   text-transform:uppercase;
-  background:#121213;
+  background:#0b0c0d;
 }
-.tile.state-0{ background:#3a3a3c; color:#fff; border-color:#3a3a3c; }
-.tile.state-1{ background:#c9b458; color:#000; border-color:#c9b458; }
-.tile.state-2{ background:#6aaa64; color:#fff; border-color:#6aaa64; }
+
+/* states */
+.tile.state-0{ background:#3a3a3c; color:#fff; border-color:#3a3a3c; } /* absent */
+.tile.state-1{ background:#c9b458; color:#000; border-color:#c9b458; } /* present */
+.tile.state-2{ background:#6aaa64; color:#fff; border-color:#6aaa64; } /* correct */
 
 #info{
   display:flex;
@@ -73,8 +104,63 @@ main{
   align-items:flex-start;
 }
 
-#stats, #suggestionsWrap{
+/* Stats and suggestions */
+#stats{
+  min-width:220px;
   background:var(--panel);
   padding:12px;
+  border-radius:10px;
+  color:var(--muted);
+  line-height:1.6;
+}
+#suggestionsWrap{
+  flex:1 1 540px;
+  background:var(--panel);
+  padding:12px;
+  border-radius:10px;
+}
+#suggestions{ margin-top:8px; padding-left:18px; }
+#suggestions li{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:8px;
   border-radius:8px;
+  margin-bottom:8px;
+  background: rgba(255,255,255,0.02);
+}
+.sugg-left{ display:flex; gap:12px; align-items:center; }
+.sugg-word{ font-weight:900; letter-spacing:0.6px; }
+.sugg-meta{ color:var(--muted); font-size:13px; }
+
+.useBtn{
+  background:#ef4444;
+  color:white;
+  border:none;
+  padding:6px 8px;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:800;
+}
+.hidden{ display:none; }
+
+/* footer */
+footer#foot{
+  margin-top:18px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  color:var(--muted);
+  font-size:13px;
+}
+.legend{ display:flex; gap:12px; align-items:center; }
+.legend-item{ display:flex; gap:6px; align-items:center; }
+.legend-tile{ width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-weight:900; border-radius:6px; font-size:12px; }
+
+/* small screens */
+@media (max-width:680px){
+  .topbar{ flex-direction:column; align-items:flex-start; gap:8px; }
+  input#guessInput{ width:140px; }
+  #suggestionsWrap{ flex-basis:100%; }
 }
