@@ -1,37 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔥 Modern Wordle Bot 🔥</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <title>Wordle Helper</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div class="container">
-  <h1>Modern Wordle Bot</h1>
+  <main>
+    <section class="controls">
+      <input id="guessInput" type="text" maxlength="5" placeholder="Type guess (5 letters)" />
+      <button id="addRowBtn">Add Row</button>
+      <button id="applyBtn">Apply Feedback</button>
+      <button id="resetBtn">Reset</button>
+      <div id="status">Loading words...</div>
+    </section>
 
-  <!-- Grid container -->
-  <div id="grid"></div>
+    <section id="boardSection">
+      <div id="board"></div>
+    </section>
 
-  <!-- Input and add button -->
-  <div class="input-row">
-    <input type="text" id="guessInput" maxlength="5" placeholder="Type a 5-letter word">
-    <button id="addGuess">Add Guess</button>
-  </div>
+    <section id="info">
+      <div id="stats">
+        <strong>Possible solutions:</strong> <span id="possibleCount">—</span><br/>
+        <strong>Theoretical min guesses:</strong> <span id="minGuesses">—</span><br/>
+        <strong>Expected remaining after best guess:</strong> <span id="expectedAfter">—</span>
+      </div>
 
-  <!-- Stats -->
-  <div id="stats">
-    <p id="entropy">Entropy: 0</p>
-    <p id="expected">Expected guesses remaining: 0</p>
-  </div>
+      <div id="suggestionsWrap">
+        <h2>Top suggestions</h2>
+        <div id="computing" class="hidden">Computing suggestions... ⏳</div>
+        <ol id="suggestions"></ol>
+      </div>
+    </section>
+  </main>
 
-  <!-- Suggestions -->
-  <div id="suggestions">
-    <h2>Top Suggestions</h2>
-    <ul id="suggestionList"></ul>
-  </div>
-</div>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
