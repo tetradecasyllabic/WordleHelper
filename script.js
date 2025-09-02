@@ -1,5 +1,5 @@
 let words = [];
-let grid = [];
+let guesses = [];
 const gridDiv = document.getElementById('grid');
 const guessInput = document.getElementById('guessInput');
 const addGuess = document.getElementById('addGuess');
@@ -15,22 +15,29 @@ fetch('words.txt')
     updateSuggestions();
   });
 
-// Add guess to grid
-addGuess.addEventListener('click', () => {
-  const guess = guessInput.value.toLowerCase();
-  if(guess.length !== 5 || !words.includes(guess)) {
+// Add guess when button clicked or Enter pressed
+addGuess.addEventListener('click', handleGuess);
+guessInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') handleGuess();
+});
+
+function handleGuess(){
+  const guess = guessInput.value.trim().toLowerCase();
+  if(guess.length !== 5 || !words.includes(guess)){
     alert('Invalid word!');
     return;
   }
+  guesses.push(guess);
   addGuessToGrid(guess);
   guessInput.value = '';
   updateSuggestions();
-});
+}
 
-// Create grid cells
-function addGuessToGrid(guess) {
-  const row = [];
-  for(let i=0;i<5;i++){
+// Add guess to visual grid
+function addGuessToGrid(guess){
+  const rowDiv = document.createElement('div');
+  rowDiv.className = 'grid-row';
+  for(let i=0; i<5; i++){
     const cell = document.createElement('div');
     cell.className = 'cell absent';
     cell.textContent = guess[i];
@@ -38,13 +45,12 @@ function addGuessToGrid(guess) {
       cycleCell(cell);
       updateSuggestions();
     });
-    gridDiv.appendChild(cell);
-    row.push(cell);
+    rowDiv.appendChild(cell);
   }
-  grid.push(row);
+  gridDiv.appendChild(rowDiv);
 }
 
-// Cycle cell state: absent → present → correct → absent
+// Cycle cell color: absent -> present -> correct -> absent
 function cycleCell(cell){
   if(cell.classList.contains('absent')){
     cell.classList.remove('absent');
@@ -58,24 +64,27 @@ function cycleCell(cell){
   }
 }
 
-// Calculate entropy and expected guesses (basic approx)
+// Calculate entropy
 function calculateEntropy(wordList){
-  const total = wordList.length;
-  if(total === 0) return 0;
-  return Math.log2(total).toFixed(2);
+  if(wordList.length === 0) return 0;
+  return Math.log2(wordList.length).toFixed(2);
 }
 
+// Approx expected guesses remaining
 function calculateExpectedGuesses(wordList){
-  return Math.max(1, (Math.log2(wordList.length) / Math.log2(1.5)).toFixed(1));
+  if(wordList.length === 0) return 0;
+  return Math.max(1, (Math.log2(wordList.length)/Math.log2(1.5)).toFixed(1));
 }
 
-// Update suggestion list
+// Update suggestions based on current grid state
 function updateSuggestions(){
-  // Filter words based on grid state
   let possible = [...words];
-  
-  grid.forEach(row => {
-    row.forEach((cell, i) => {
+
+  // Apply guesses and cell states
+  const rows = document.querySelectorAll('.grid-row');
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('.cell');
+    cells.forEach((cell, i) => {
       const letter = cell.textContent;
       if(cell.classList.contains('correct')){
         possible = possible.filter(w => w[i] === letter);
@@ -87,11 +96,11 @@ function updateSuggestions(){
     });
   });
 
-  // Update entropy and expected guesses
+  // Update stats
   entropyDisplay.textContent = `Entropy: ${calculateEntropy(possible)}`;
   expectedDisplay.textContent = `Expected guesses remaining: ${calculateExpectedGuesses(possible)}`;
 
-  // Show top suggestions
+  // Update top suggestions
   suggestionList.innerHTML = '';
   possible.slice(0,10).forEach(w => {
     const li = document.createElement('li');
