@@ -69,7 +69,7 @@ function onAddRow(){
     });
     row.appendChild(tile);
   }
-  boardEl.prepend(row); // latest at top
+  boardEl.appendChild(row); // latest at top
   guessInput().value = "";
   // auto-scroll maybe not needed
 }
