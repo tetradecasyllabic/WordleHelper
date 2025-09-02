@@ -76,3 +76,11 @@ button:hover {
   padding: 1rem;
   border-radius: 0.5rem;
 }
+.row {
+  display: grid;
+  grid-template-columns: repeat(5, 60px);
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
