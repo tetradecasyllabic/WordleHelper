@@ -2,8 +2,7 @@
 // Loads words from gist raw, supports tile click (black->yellow->green->black), filters solutions,
 // computes top-10 suggestions using a 2-stage algorithm (frequency -> expected-remaining).
 
-const RAW_URL = "https://gist.githubusercontent.com/dracos/dd0668f281e685bad51479e5acaadb93/raw/6bfa15d263d6d5b63840a8e5b64e04b382fdb079/valid-wordle-words.txt";
-
+const RAW_URL = ¨words.txt¨
 let allWords = [];         // full allowed guesses (from gist)
 let possibleWords = [];    // remaining possible solutions (starts as allWords)
 const MAX_CANDIDATES = 120; // top-K size for heavy expected-remaining calc (tune for perf)
