@@ -1,20 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Wordle Bot 🤖</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <title>Wordle Helper — Frontend-only</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Wordle Bot 🤖</h1>
+  <header>
+    <h1>Wordle Helper 🤖🟩🟨⬛</h1>
+    <p class="sub">Type a guess, add it as a row, click tiles to set colors (black → yellow → green), then apply feedback to get smart suggestions.</p>
+  </header>
 
-  <div id="grid"></div>
+  <main>
+    <section class="controls">
+      <input id="guessInput" type="text" maxlength="5" placeholder="type guess (5 letters)" />
+      <button id="addRowBtn">Add Row</button>
+      <button id="applyBtn" title="Apply feedback from last added row">Apply Feedback</button>
+      <button id="resetBtn">Reset</button>
+      <div id="status">Loading words...</div>
+    </section>
 
-  <input type="text" id="guess" maxlength="5" placeholder="Your guess">
-  <input type="text" id="feedback" maxlength="5" placeholder="Feedback ⬛🟨🟩">
-  <button onclick="submitGuess()">Submit</button>
+    <section id="boardSection">
+      <div id="board" aria-live="polite"></div>
+    </section>
 
-  <h2 id="next">Next guess: -</h2>
+    <section id="info">
+      <div id="stats">
+        <strong>Possible solutions:</strong> <span id="possibleCount">—</span><br/>
+        <strong>Theoretical min guesses (info lower bound):</strong> <span id="minGuesses">—</span><br/>
+        <strong>Expected remaining after best guess:</strong> <span id="expectedAfter">—</span>
+      </div>
+
+      <div id="suggestionsWrap">
+        <h2>Top suggestions (best first)</h2>
+        <div id="computing" class="hidden">Computing suggestions... ⏳</div>
+        <ol id="suggestions"></ol>
+      </div>
+    </section>
+
+    <footer>
+      <small>Words source: gist raw (keeps list updated). Works client-side → safe for GitHub Pages.</small>
+    </footer>
+  </main>
 
   <script src="script.js"></script>
 </body>
