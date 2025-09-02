@@ -1,5 +1,4 @@
 let words = [];
-let guesses = [];
 const gridDiv = document.getElementById('grid');
 const guessInput = document.getElementById('guessInput');
 const addGuess = document.getElementById('addGuess');
@@ -15,29 +14,28 @@ fetch('words.txt')
     updateSuggestions();
   });
 
-// Add guess when button clicked or Enter pressed
+// Handle guess button or Enter
 addGuess.addEventListener('click', handleGuess);
 guessInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') handleGuess();
 });
 
-function handleGuess(){
+function handleGuess() {
   const guess = guessInput.value.trim().toLowerCase();
-  if(guess.length !== 5 || !words.includes(guess)){
+  if (guess.length !== 5 || !words.includes(guess)) {
     alert('Invalid word!');
     return;
   }
-  guesses.push(guess);
   addGuessToGrid(guess);
   guessInput.value = '';
   updateSuggestions();
 }
 
-// Add guess to visual grid
-function addGuessToGrid(guess){
+// Add guess to grid
+function addGuessToGrid(guess) {
   const rowDiv = document.createElement('div');
   rowDiv.className = 'grid-row';
-  for(let i=0; i<5; i++){
+  for (let i = 0; i < 5; i++) {
     const cell = document.createElement('div');
     cell.className = 'cell absent';
     cell.textContent = guess[i];
@@ -50,12 +48,12 @@ function addGuessToGrid(guess){
   gridDiv.appendChild(rowDiv);
 }
 
-// Cycle cell color: absent -> present -> correct -> absent
-function cycleCell(cell){
-  if(cell.classList.contains('absent')){
+// Cycle cell color: absent → present → correct → absent
+function cycleCell(cell) {
+  if (cell.classList.contains('absent')) {
     cell.classList.remove('absent');
     cell.classList.add('present');
-  } else if(cell.classList.contains('present')){
+  } else if (cell.classList.contains('present')) {
     cell.classList.remove('present');
     cell.classList.add('correct');
   } else {
@@ -64,45 +62,66 @@ function cycleCell(cell){
   }
 }
 
-// Calculate entropy
-function calculateEntropy(wordList){
-  if(wordList.length === 0) return 0;
-  return Math.log2(wordList.length).toFixed(2);
-}
-
-// Approx expected guesses remaining
-function calculateExpectedGuesses(wordList){
-  if(wordList.length === 0) return 0;
-  return Math.max(1, (Math.log2(wordList.length)/Math.log2(1.5)).toFixed(1));
-}
-
-// Update suggestions based on current grid state
-function updateSuggestions(){
+// Filter possible words based on grid
+function filterWords() {
   let possible = [...words];
-
-  // Apply guesses and cell states
   const rows = document.querySelectorAll('.grid-row');
+
   rows.forEach(row => {
     const cells = row.querySelectorAll('.cell');
     cells.forEach((cell, i) => {
       const letter = cell.textContent;
-      if(cell.classList.contains('correct')){
+
+      if (cell.classList.contains('correct')) {
+        // Must be exactly here
         possible = possible.filter(w => w[i] === letter);
-      } else if(cell.classList.contains('present')){
+      } else if (cell.classList.contains('present')) {
+        // Must exist somewhere else
         possible = possible.filter(w => w.includes(letter) && w[i] !== letter);
-      } else if(cell.classList.contains('absent')){
-        possible = possible.filter(w => !w.includes(letter));
       }
     });
+
+    // Handle absent letters carefully
+    const absentLetters = [];
+    cells.forEach((cell, i) => {
+      const letter = cell.textContent;
+      if (cell.classList.contains('absent')) {
+        // Only truly absent if it's not marked present elsewhere in the same row
+        if (![...cells].some(c => c !== cell && c.textContent === letter && c.classList.contains('present'))) {
+          absentLetters.push(letter);
+        }
+      }
+    });
+    if (absentLetters.length > 0) {
+      possible = possible.filter(w => !absentLetters.some(l => w.includes(l)));
+    }
   });
 
-  // Update stats
+  return possible;
+}
+
+// Entropy calculation
+function calculateEntropy(wordList) {
+  if (wordList.length === 0) return 0;
+  return Math.log2(wordList.length).toFixed(2);
+}
+
+// Expected guesses approximation
+function calculateExpectedGuesses(wordList) {
+  if (wordList.length === 0) return 0;
+  // Classic Wordle approximation: log2(N) guesses
+  return Math.max(1, (Math.log2(wordList.length) / Math.log2(1.5)).toFixed(1));
+}
+
+// Update suggestions
+function updateSuggestions() {
+  const possible = filterWords();
+
   entropyDisplay.textContent = `Entropy: ${calculateEntropy(possible)}`;
   expectedDisplay.textContent = `Expected guesses remaining: ${calculateExpectedGuesses(possible)}`;
 
-  // Update top suggestions
   suggestionList.innerHTML = '';
-  possible.slice(0,10).forEach(w => {
+  possible.slice(0, 20).forEach(w => {
     const li = document.createElement('li');
     li.textContent = w;
     suggestionList.appendChild(li);
