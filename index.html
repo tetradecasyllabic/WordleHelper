@@ -2,29 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Modern Wordle Grid Tool</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern Wordle Bot</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main>
-    <h1>Wordle Grid Tool</h1>
-    <form id="entryForm" autocomplete="off">
-      <input id="wordInput" type="text" maxlength="5" pattern="[A-Za-z]{5}" autofocus placeholder="Enter word (5 letters)">
-      <button type="submit">Add to Grid</button>
-    </form>
-
-    <div>
+  <div class="app">
+    <h1>Wordle Bot Playground 🤖</h1>
+    <div class="controls">
+      <input type="text" id="guessInput" maxlength="5" placeholder="Enter word...">
+      <button id="submitGuess">Add Guess</button>
       <select id="sortSelect">
-        <option value="none">Sort: None</option>
-        <option value="entropy">Sort: Highest Entropy</option>
-        <option value="expected">Sort: Lowest Expected Guesses</option>
-        <option value="overall">Sort: Overall</option>
+        <option value="entropy">🔼 Highest Entropy</option>
+        <option value="expected">🔽 Lowest Expected</option>
+        <option value="combined">⭐ Best Overall</option>
       </select>
     </div>
 
     <div id="grid" class="grid"></div>
-  </main>
+    <div id="results" class="results"></div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
