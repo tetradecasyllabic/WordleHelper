@@ -1,5 +1,4 @@
-const RAW_URL = "words.txt";
-
+// Wordle Helper - loads words from local words.txt
 let allWords = [];
 let possibleWords = [];
 const MAX_CANDIDATES = 120;
@@ -22,10 +21,11 @@ applyBtn.addEventListener("click", onApplyFeedback);
 resetBtn.addEventListener("click", resetAll);
 guessInput().addEventListener("keydown", (e) => { if(e.key==="Enter") onAddRow(); });
 
+// -------- LOAD WORDS --------
 async function init(){
   setStatus("Loading words...");
   try{
-    const r = await fetch(RAW_URL, {cache:"no-cache"});
+    const r = await fetch("words.txt");
     const txt = await r.text();
     allWords = txt.split(/\r?\n/).map(s=>s.trim().toLowerCase()).filter(Boolean);
     possibleWords = [...allWords];
@@ -33,13 +33,13 @@ async function init(){
     updateStatsAndSuggestions();
   }catch(err){
     console.error(err);
-    setStatus("Failed to load words.");
+    setStatus("Failed to load words.txt.");
   }
 }
 
 function setStatus(s){ statusEl.textContent = s; }
 
-/* BOARD */
+// -------- BOARD / TILE LOGIC --------
 function onAddRow(){
   const guess = guessInput().value.trim().toLowerCase();
   if(!/^[a-z]{5}$/.test(guess)){ alert("Type 5 letters."); return; }
@@ -63,7 +63,7 @@ function cycleTileState(tile){
   tile.classList.add(`state-${s}`);
 }
 
-/* FEEDBACK */
+// -------- FEEDBACK / FILTERING --------
 function onApplyFeedback(){
   const row = boardEl.querySelector(".row");
   if(!row){ alert("Add a guess first."); return; }
@@ -82,7 +82,7 @@ function resetAll(){
   updateStatsAndSuggestions();
 }
 
-/* PATTERN */
+// -------- PATTERN LOGIC --------
 function getPattern(guess, solution){
   const g=guess.split(""), s=solution.split("");
   const pattern=[0,0,0,0,0], used=[false,false,false,false,false];
@@ -92,7 +92,7 @@ function getPattern(guess, solution){
   return pattern.join("");
 }
 
-/* SUGGESTIONS */
+// -------- SUGGESTION ENGINE --------
 let lastSuggestionResults=[];
 async function updateStatsAndSuggestions(){
   possibleCountEl.textContent=possibleWords.length;
@@ -107,14 +107,56 @@ function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 async function computeAndShowSuggestions(){
   suggestionsEl.innerHTML=""; computingEl.classList.remove("hidden");
   await sleep(20);
+
+  // letter frequency scoring
   const freq={};
   for(const w of possibleWords){ const seen=new Set(); for(const ch of w){ if(!seen.has(ch)){freq[ch]=(freq[ch]||0)+1; seen.add(ch);}}}
   function baseScore(word){ const seen=new Set(); let score=0; for(const ch of word){ if(!seen.has(ch)){score+=(freq[ch]||0); seen.add(ch);}} return score; }
+
   const scored=allWords.map(w=>({w,s:baseScore(w)})).sort((a,b)=>b.s-a.s);
   const K=Math.min(MAX_CANDIDATES, scored.length);
   let candidatePool=scored.slice(0,K).map(x=>x.w);
   if(possibleWords.length<=80){ const combined=new Set(candidatePool.concat(possibleWords)); candidatePool=Array.from(combined);}
-  const N=possibleWords.length||1; const results=[];
+
+  const N=possibleWords.length||1;
+  const results=[];
   for(let idx=0;idx<candidatePool.length;idx++){
-    const candidate=candidatePool[idx]; const counts=new Map();
-    for(const sol of possibleWords){ const pat=getPattern(candidate,sol); counts.set(p
+    const candidate=candidatePool[idx];
+    const counts=new Map();
+    for(const sol of possibleWords){
+      const pat=getPattern(candidate,sol);
+      counts.set(pat,(counts.get(pat)||0)+1);
+    }
+    // expected remaining
+    let sumSq=0;
+    for(const c of counts.values()) sumSq+=c*c;
+    const expectedRemaining=sumSq/N;
+    // Shannon entropy
+    let entropy=0;
+    for(const c of counts.values()){
+      const p=c/N; entropy-=(p*Math.log2(p)||0);
+    }
+    results.push({word:candidate, expectedRemaining, entropy, baseScore:baseScore(candidate)});
+    if(idx%40===0) await sleep(0);
+  }
+
+  results.sort((a,b)=>a.expectedRemaining-b.expectedRemaining || b.entropy-a.entropy);
+  lastSuggestionResults=results;
+  const top10=results.slice(0,10);
+  expectedAfterEl.textContent=top10.length?Math.round(top10[0].expectedRemaining):"—";
+
+  suggestionsEl.innerHTML="";
+  for(const r of top10){
+    const li=document.createElement("li");
+    const left=document.createElement("div"); left.className="sugg-left";
+    const wd=document.createElement("div"); wd.className="sugg-word"; wd.textContent=r.word.toUpperCase();
+    const meta=document.createElement("div"); meta.className="sugg-meta";
+    meta.innerHTML=`exp: <strong>${r.expectedRemaining.toFixed(1)}</strong> • entropy: ${r.entropy.toFixed(2)} • score: ${r.baseScore}`;
+    left.appendChild(wd); left.appendChild(meta);
+    const useBtn=document.createElement("button"); useBtn.textContent="Use";
+    useBtn.addEventListener("click",()=>{ guessInput().value=r.word; guessInput().focus(); });
+    li.appendChild(left); li.appendChild(useBtn); suggestionsEl.appendChild(li);
+  }
+
+  computingEl.classList.add("hidden");
+}
