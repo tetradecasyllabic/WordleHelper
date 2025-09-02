@@ -3,24 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Modern Wordle Bot</title>
+<title>🔥 Modern Wordle Bot 🔥</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="container">
-  <h1> Modern Wordle Bot </h1>
+  <h1>Modern Wordle Bot</h1>
+
+  <!-- Grid container -->
   <div id="grid"></div>
-  <input type="text" id="guessInput" maxlength="5" placeholder="Type your guess">
-  <button id="addGuess">Add Guess</button>
+
+  <!-- Input and add button -->
+  <div class="input-row">
+    <input type="text" id="guessInput" maxlength="5" placeholder="Type a 5-letter word">
+    <button id="addGuess">Add Guess</button>
+  </div>
+
+  <!-- Stats -->
   <div id="stats">
     <p id="entropy">Entropy: 0</p>
     <p id="expected">Expected guesses remaining: 0</p>
   </div>
+
+  <!-- Suggestions -->
   <div id="suggestions">
     <h2>Top Suggestions</h2>
     <ul id="suggestionList"></ul>
   </div>
 </div>
+
 <script src="script.js"></script>
 </body>
 </html>
