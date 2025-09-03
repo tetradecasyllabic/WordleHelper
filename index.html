@@ -1,38 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Wordle Helper</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Wordle Helper 🤖</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main>
-    <section class="controls">
-      <input id="guessInput" type="text" maxlength="5" placeholder="type guess (5 letters)" />
+    <div class="controls">
+      <input id="guessInput" placeholder="Type guess" maxlength="5">
       <button id="addRowBtn">Add Row</button>
       <button id="applyBtn">Apply Feedback</button>
       <button id="resetBtn">Reset</button>
-      <div id="status">Loading words...</div>
-    </section>
+      <label for="sortSelect">Sort by:</label>
+      <select id="sortSelect">
+        <option value="exp">Lowest exp</option>
+        <option value="entropy">Highest entropy</option>
+        <option value="overall">Best overall</option>
+      </select>
+    </div>
 
-    <section id="boardSection">
-      <div id="board"></div>
-    </section>
+    <div id="board"></div>
 
-    <section id="info">
+    <div id="info">
       <div id="stats">
-        <strong>Possible solutions:</strong> <span id="possibleCount">—</span><br/>
-        <strong>Theoretical min guesses:</strong> <span id="minGuesses">—</span><br/>
-        <strong>Expected remaining after best guess:</strong> <span id="expectedAfter">—</span>
+        <p><strong>Status:</strong> <span id="status">Loading…</span></p>
+        <p>Possible solutions: <span id="possibleCount">0</span></p>
+        <p>Min guesses: <span id="minGuesses">—</span></p>
+        <p>Expected after best guess: <span id="expectedAfter">—</span></p>
       </div>
 
       <div id="suggestionsWrap">
         <h2>Top suggestions</h2>
-        <div id="computing" class="hidden">Computing suggestions... ⏳</div>
-        <ol id="suggestions"></ol>
+        <div id="computing" class="hidden">⏳ Computing suggestions…</div>
+        <ul id="suggestions"></ul>
       </div>
-    </section>
+    </div>
   </main>
 
   <script src="script.js"></script>
