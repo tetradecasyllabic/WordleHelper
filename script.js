@@ -149,7 +149,7 @@ async function computeAndShowSuggestions(){
     for(const ch of w){ if(!seen.has(ch)){ freq[ch]=(freq[ch]||0)+1; seen.add(ch); } }
   }
   const baseScore = w=>{ let seen=new Set(), s=0; for(const ch of w){ if(!seen.has(ch)){s+=freq[ch]; seen.add(ch);} } return s; };
-  const scored = allWords.map(w=>({w,s:baseScore(w)})).sort((a,b)=>b.s-a.s);
+  const scored = possibleWords.map(w=>({w,s:baseScore(w)})).sort((a,b)=>b.s-a.s);
   let topK = scored.slice(0,Math.min(MAX_CANDIDATES,scored.length)).map(x=>x.w);
   if(possibleWords.length<=80){ topK = Array.from(new Set(topK.concat(possibleWords))); }
 
