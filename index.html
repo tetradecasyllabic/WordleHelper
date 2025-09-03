@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Wordle Helper</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wordle Helper 🤖</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main>
     <!-- Controls -->
     <section class="controls">
-      <input id="guessInput" type="text" maxlength="5" placeholder="type guess" />
+      <input id="guessInput" type="text" maxlength="5" placeholder="Enter guess" />
       <button id="addRowBtn">Add Row</button>
       <button id="applyBtn">Apply Feedback</button>
       <button id="resetBtn">Reset</button>
@@ -18,22 +18,27 @@
     </section>
 
     <!-- Board -->
-    <section id="boardSection"><div id="board"></div></section>
+    <section id="boardSection">
+      <div id="board"></div>
+    </section>
 
-    <!-- Info + Suggestions -->
+    <!-- Stats & Suggestions -->
     <section id="info">
       <div id="stats">
-        <strong>Possible solutions:</strong> <span id="possibleCount">—</span><br/>
-        <strong>Min guesses:</strong> <span id="minGuesses">—</span><br/>
-        <strong>Expected after best:</strong> <span id="expectedAfter">—</span>
+        <h2>Stats</h2>
+        <p><strong>Possible solutions:</strong> <span id="possibleCount">—</span></p>
+        <p><strong>Theoretical min guesses:</strong> <span id="minGuesses">—</span></p>
+        <p><strong>Expected remaining after best guess:</strong> <span id="expectedAfter">—</span></p>
       </div>
+
       <div id="suggestionsWrap">
-        <h2>Top suggestions</h2>
-        <div id="computing" class="hidden">Computing… ⏳</div>
+        <h2>Top Suggestions</h2>
+        <div id="computing" class="hidden">Computing suggestions... ⏳</div>
         <ol id="suggestions"></ol>
       </div>
     </section>
   </main>
+
   <script src="script.js"></script>
 </body>
 </html>
