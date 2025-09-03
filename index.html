@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Wordle Helper</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
+<meta charset="utf-8" />
+<title>Wordle Helper Auto-Solver 🤖</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 <main>
-  <!-- Controls -->
   <section class="controls">
     <input id="guessInput" type="text" maxlength="5" placeholder="type guess (5 letters)" />
     <button id="addRowBtn">Add Row</button>
@@ -17,12 +16,10 @@
     <div id="status">Loading words...</div>
   </section>
 
-  <!-- Game board -->
   <section id="boardSection">
     <div id="board"></div>
   </section>
 
-  <!-- Info + Suggestions -->
   <section id="info">
     <div id="stats">
       <strong>Possible solutions:</strong> <span id="possibleCount">—</span><br/>
@@ -43,21 +40,21 @@
     </div>
   </section>
 
-  <!-- Simulation Section -->
   <section id="simulationSection">
     <h2>Simulation</h2>
     <div>
       <strong>Single-word simulation:</strong><br>
-      Target word: <input id="simTarget" type="text" maxlength="5" placeholder="target word"/>
-      Starting guess: <input id="simStart" type="text" maxlength="5" placeholder="starting guess"/>
+      Target: <input id="simTarget" maxlength="5" placeholder="target word"/>
+      Start: <input id="simStart" maxlength="5" placeholder="starting guess"/>
       <button id="runSimBtn">Run Simulation</button>
       <div id="simResult"></div>
     </div>
     <hr>
     <div>
       <strong>Batch simulation (starting word):</strong><br>
-      Starting word: <input id="batchStart" type="text" maxlength="5" placeholder="starting guess"/>
-      <button id="runBatchBtn">Run 100 simulations</button>
+      Start: <input id="batchStart" maxlength="5" placeholder="starting guess"/>
+      Speed (ms per move): <input id="batchSpeed" type="number" value="200"/>
+      <button id="runBatchBtn">Run 20 simulations</button>
       <div id="batchResult"></div>
     </div>
   </section>
