@@ -4,9 +4,9 @@
   --text: #ffffff;
   --muted: #9b9b9b;
   --tile-size: 56px;
-  --accent: #6aaa64;
-  --warn: #c9b458;
-  --gray: #3a3a3c;
+  --accent-green: #6aaa64;
+  --accent-yellow: #c9b458;
+  --accent-gray: #3a3a3c;
 }
 
 * {
@@ -17,76 +17,56 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   display: flex;
+  min-height: 100vh;
   justify-content: center;
   align-items: flex-start;
-  min-height: 100vh;
 }
 
 main {
   width: 100%;
-  max-width: 960px;
+  max-width: 980px;
   padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
 }
 
 .controls {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
   align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .controls input {
-  padding: 10px;
-  font-size: 1rem;
-  text-transform: uppercase;
+  padding: 8px;
+  font-size: 16px;
   border-radius: 6px;
-  border: 2px solid var(--gray);
+  border: 1px solid var(--muted);
   background: var(--panel);
   color: var(--text);
-  outline: none;
+  text-transform: uppercase;
 }
 
 .controls button {
-  padding: 10px 14px;
-  border: none;
+  background: var(--panel);
+  border: 1px solid var(--muted);
   border-radius: 6px;
-  font-weight: 600;
+  padding: 8px 12px;
+  color: var(--text);
   cursor: pointer;
-  background: var(--accent);
-  color: #fff;
   transition: background 0.2s;
 }
-.controls button:hover {
-  background: #57a152;
-}
-.controls button#resetBtn {
-  background: #e74c3c;
-}
-.controls button#resetBtn:hover {
-  background: #c0392b;
-}
 
-#status {
-  flex: 1;
-  font-size: 0.9rem;
-  color: var(--muted);
+.controls button:hover {
+  background: #2a2a2b;
 }
 
 #board {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-bottom: 16px;
   align-items: center;
 }
 
@@ -105,47 +85,62 @@ h2 {
   font-weight: 800;
   font-size: 22px;
   border-radius: 6px;
+  border: 2px solid #3b3b3b;
+  color: var(--text);
   user-select: none;
   cursor: pointer;
   text-transform: uppercase;
-  border: 2px solid var(--gray);
-  background: var(--panel);
-  color: var(--text);
+  background: var(--bg);
 }
-.tile.state-0 { background: var(--gray); border-color: var(--gray); }
-.tile.state-1 { background: var(--warn); border-color: var(--warn); color: #000; }
-.tile.state-2 { background: var(--accent); border-color: var(--accent); }
+
+.tile.state-0 {
+  background: var(--accent-gray);
+  color: #fff;
+  border-color: var(--accent-gray);
+}
+
+.tile.state-1 {
+  background: var(--accent-yellow);
+  color: #000;
+  border-color: var(--accent-yellow);
+}
+
+.tile.state-2 {
+  background: var(--accent-green);
+  color: #fff;
+  border-color: var(--accent-green);
+}
 
 #info {
   display: flex;
-  flex-wrap: wrap;
   gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-start;
 }
 
 #stats, #suggestionsWrap {
   background: var(--panel);
   padding: 12px;
   border-radius: 8px;
-  flex: 1;
-  min-width: 260px;
+  flex: 1 1 300px;
 }
 
-#suggestionsWrap ol {
+#suggestionsWrap h2 {
+  margin-top: 0;
+}
+
+#suggestions {
   list-style: none;
-  padding: 0;
   margin: 0;
+  padding: 0;
 }
 
-#suggestionsWrap li {
+#suggestions li {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 6px 0;
-  border-bottom: 1px solid #333;
-}
-
-#suggestionsWrap li:last-child {
-  border-bottom: none;
+  border-bottom: 1px solid #2a2a2b;
 }
 
 .sugg-left {
@@ -154,26 +149,27 @@ h2 {
 }
 
 .sugg-word {
-  font-weight: 700;
-  font-size: 1.1rem;
+  font-weight: bold;
+  font-size: 18px;
 }
 
 .sugg-meta {
-  font-size: 0.85rem;
+  font-size: 13px;
   color: var(--muted);
 }
 
 .useBtn {
-  padding: 6px 10px;
-  background: var(--accent);
+  background: var(--accent-green);
   color: #fff;
   border: none;
+  padding: 4px 10px;
   border-radius: 6px;
-  font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s;
 }
+
 .useBtn:hover {
-  background: #57a152;
+  background: #599c55;
 }
 
 .hidden {
