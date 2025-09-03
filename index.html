@@ -2,24 +2,27 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Wordle Helper Auto-Solver 🤖</title>
+<title>Wordle Helper</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 <main>
+  <!-- CONTROLS -->
   <section class="controls">
-    <input id="guessInput" type="text" maxlength="5" placeholder="type guess (5 letters)" />
+    <input id="guessInput" type="text" maxlength="5" placeholder="Type guess (5 letters)" />
     <button id="addRowBtn">Add Row</button>
     <button id="applyBtn">Apply Feedback</button>
     <button id="resetBtn">Reset</button>
     <div id="status">Loading words...</div>
   </section>
 
+  <!-- BOARD -->
   <section id="boardSection">
     <div id="board"></div>
   </section>
 
+  <!-- STATS & SUGGESTIONS -->
   <section id="info">
     <div id="stats">
       <strong>Possible solutions:</strong> <span id="possibleCount">—</span><br/>
@@ -29,34 +32,24 @@
 
     <div id="suggestionsWrap">
       <h2>Top suggestions</h2>
-      <label for="sortSelect">Sort by:</label>
-      <select id="sortSelect">
-        <option value="exp">Lowest Expected Remaining</option>
-        <option value="entropy">Highest Entropy</option>
-        <option value="score">Best Base Score</option>
-      </select>
       <div id="computing" class="hidden">Computing suggestions... ⏳</div>
       <ol id="suggestions"></ol>
     </div>
   </section>
 
-  <section id="simulationSection">
-    <h2>Simulation</h2>
-    <div>
-      <strong>Single-word simulation:</strong><br>
-      Target: <input id="simTarget" maxlength="5" placeholder="target word"/>
-      Start: <input id="simStart" maxlength="5" placeholder="starting guess"/>
-      <button id="runSimBtn">Run Simulation</button>
-      <div id="simResult"></div>
-    </div>
-    <hr>
-    <div>
-      <strong>Batch simulation (starting word):</strong><br>
-      Start: <input id="batchStart" maxlength="5" placeholder="starting guess"/>
-      Speed (ms per move): <input id="batchSpeed" type="number" value="200"/>
-      <button id="runBatchBtn">Run 20 simulations</button>
-      <div id="batchResult"></div>
-    </div>
+  <!-- SIMULATION -->
+  <section id="simulation">
+    <h2>Single Word Simulation</h2>
+    <input id="simStart" type="text" maxlength="5" placeholder="Starting guess" />
+    <input id="simTarget" type="text" maxlength="5" placeholder="Target word" />
+    <button id="runSimBtn">Run Simulation</button>
+    <div id="simResult"></div>
+
+    <h2>Batch Simulation</h2>
+    <input id="batchStart" type="text" maxlength="5" placeholder="Starting guess" />
+    <input id="batchSpeed" type="number" placeholder="Speed ms" value="200" />
+    <button id="runBatchBtn">Run Batch (20 games)</button>
+    <div id="batchResult"></div>
   </section>
 </main>
 
