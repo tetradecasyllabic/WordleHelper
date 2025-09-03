@@ -32,9 +32,9 @@ async function init() {
     possibleWords = [...allWords];
     setStatus(`Loaded ${allWords.length} words.`);
     updateStatsAndSuggestions();
-  } catch(err) { 
-    console.error(err); 
-    setStatus("Failed to load words."); 
+  } catch(err) {
+    console.error(err);
+    setStatus("Failed to load words.");
   }
 }
 
@@ -68,6 +68,7 @@ function cycleTileState(tile){
 }
 
 function onApplyFeedback() {
+  // Apply all feedbacks cumulatively
   possibleWords = [...allWords];
   const rows = Array.from(boardEl.querySelectorAll(".row"));
   for(const row of rows){
@@ -84,8 +85,8 @@ function resetAll(){
   possibleWords=[...allWords];
   boardEl.innerHTML="";
   suggestionsEl.innerHTML="";
-  possibleAnswersWrap.classList.add("hidden");
   possibleAnswersEl.innerHTML="";
+  possibleAnswersWrap.classList.remove("hidden");
   setStatus(`Reset — ${possibleWords.length} words loaded.`);
   updateStatsAndSuggestions();
 }
@@ -201,18 +202,17 @@ async function computeAndShowSuggestions(){
     suggestionsEl.appendChild(li);
   }
 
-  // 👇 NEW: show possible answers if <50
+  // ✅ Possible answers always updates if <50
+  possibleAnswersEl.innerHTML="";
   if(possibleWords.length>0 && possibleWords.length<50){
-    possibleAnswersWrap.classList.remove("hidden");
-    possibleAnswersEl.innerHTML="";
-    for(const w of possibleWords){
-      const li=document.createElement("li");
-      li.textContent=w.toUpperCase();
+    possibleWords.forEach(w=>{
+      const li=document.createElement("li"); 
+      li.textContent=w.toUpperCase(); 
       possibleAnswersEl.appendChild(li);
-    }
+    });
+    possibleAnswersWrap.classList.remove("hidden");
   } else {
     possibleAnswersWrap.classList.add("hidden");
-    possibleAnswersEl.innerHTML="";
   }
 
   computingEl.classList.add("hidden");
