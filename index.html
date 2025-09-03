@@ -2,50 +2,67 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Wordle Helper 🤖</title>
+  <title>Wordle Helper</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main>
-    <!-- Controls -->
-    <section class="controls">
-      <input id="guessInput" type="text" maxlength="5" placeholder="type guess (5 letters)" />
-      <button id="addRowBtn">Add Row</button>
-      <button id="applyBtn">Apply Feedback</button>
-      <button id="resetBtn">Reset</button>
-      <div id="status">Loading words...</div>
-    </section>
+<main>
+  <!-- Controls -->
+  <section class="controls">
+    <input id="guessInput" type="text" maxlength="5" placeholder="type guess (5 letters)" />
+    <button id="addRowBtn">Add Row</button>
+    <button id="applyBtn">Apply Feedback</button>
+    <button id="resetBtn">Reset</button>
+    <div id="status">Loading words...</div>
+  </section>
 
-    <!-- Game board -->
-    <section id="boardSection">
-      <div id="board"></div>
-    </section>
+  <!-- Game board -->
+  <section id="boardSection">
+    <div id="board"></div>
+  </section>
 
-    <!-- Info + Suggestions -->
-    <section id="info">
-      <div id="stats">
-        <strong>Possible solutions:</strong> <span id="possibleCount">—</span><br/>
-        <strong>Theoretical min guesses:</strong> <span id="minGuesses">—</span><br/>
-        <strong>Expected remaining after best guess:</strong> <span id="expectedAfter">—</span>
-      </div>
+  <!-- Info + Suggestions -->
+  <section id="info">
+    <div id="stats">
+      <strong>Possible solutions:</strong> <span id="possibleCount">—</span><br/>
+      <strong>Theoretical min guesses:</strong> <span id="minGuesses">—</span><br/>
+      <strong>Expected remaining after best guess:</strong> <span id="expectedAfter">—</span>
+    </div>
 
-      <div id="suggestionsWrap">
-        <h2>Top suggestions</h2>
-        <!-- Sorting control -->
-        <label for="sortSelect">Sort by:</label>
-        <select id="sortSelect">
-          <option value="exp">Lowest Expected Remaining</option>
-          <option value="entropy">Highest Entropy</option>
-          <option value="score">Best Base Score</option>
-        </select>
+    <div id="suggestionsWrap">
+      <h2>Top suggestions</h2>
+      <label for="sortSelect">Sort by:</label>
+      <select id="sortSelect">
+        <option value="exp">Lowest Expected Remaining</option>
+        <option value="entropy">Highest Entropy</option>
+        <option value="score">Best Base Score</option>
+      </select>
+      <div id="computing" class="hidden">Computing suggestions... ⏳</div>
+      <ol id="suggestions"></ol>
+    </div>
+  </section>
 
-        <div id="computing" class="hidden">Computing suggestions... ⏳</div>
-        <ol id="suggestions"></ol>
-      </div>
-    </section>
-  </main>
+  <!-- Simulation Section -->
+  <section id="simulationSection">
+    <h2>Simulation</h2>
+    <div>
+      <strong>Single-word simulation:</strong><br>
+      Target word: <input id="simTarget" type="text" maxlength="5" placeholder="target word"/>
+      Starting guess: <input id="simStart" type="text" maxlength="5" placeholder="starting guess"/>
+      <button id="runSimBtn">Run Simulation</button>
+      <div id="simResult"></div>
+    </div>
+    <hr>
+    <div>
+      <strong>Batch simulation (starting word):</strong><br>
+      Starting word: <input id="batchStart" type="text" maxlength="5" placeholder="starting guess"/>
+      <button id="runBatchBtn">Run 100 simulations</button>
+      <div id="batchResult"></div>
+    </div>
+  </section>
+</main>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
