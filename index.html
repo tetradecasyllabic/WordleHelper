@@ -2,58 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Wordle Helper</title>
+  <title>Wordle Helper + Simulation</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main>
-    <!-- Controls -->
     <section class="controls">
-      <input id="guessInput" type="text" maxlength="5" placeholder="type guess (5 letters)" />
+      <input id="guessInput" type="text" maxlength="5" placeholder="type guess" />
       <button id="addRowBtn">Add Row</button>
       <button id="applyBtn">Apply Feedback</button>
       <button id="resetBtn">Reset</button>
       <div id="status">Loading words...</div>
     </section>
 
-    <!-- Board -->
-    <section id="boardSection">
-      <div id="board"></div>
-    </section>
+    <section id="boardSection"><div id="board"></div></section>
 
-    <!-- Stats + Suggestions -->
     <section id="info">
       <div id="stats">
         <strong>Possible solutions:</strong> <span id="possibleCount">—</span><br/>
-        <strong>Theoretical min guesses:</strong> <span id="minGuesses">—</span><br/>
-        <strong>Expected remaining after best guess:</strong> <span id="expectedAfter">—</span>
+        <strong>Min guesses:</strong> <span id="minGuesses">—</span><br/>
+        <strong>Expected after best:</strong> <span id="expectedAfter">—</span>
       </div>
-
       <div id="suggestionsWrap">
         <h2>Top suggestions</h2>
-        <div id="computing" class="hidden">Computing suggestions... ⏳</div>
+        <div id="computing" class="hidden">Computing… ⏳</div>
         <ol id="suggestions"></ol>
       </div>
     </section>
 
-    <!-- Simulation -->
-    <section id="simulation">
-      <h2>Single Word Simulation</h2>
-      <input id="simStart" type="text" maxlength="5" placeholder="Starting guess" />
-      <input id="simTarget" type="text" maxlength="5" placeholder="Target word" />
-      <button id="runSimBtn">Run Simulation</button>
-      <div id="simResult" style="white-space: pre-wrap;"></div>
+    <section id="simulator">
+      <h2>Single Simulation</h2>
+      <input id="simStart" type="text" maxlength="5" placeholder="start word"/>
+      <input id="simTarget" type="text" maxlength="5" placeholder="target word"/>
+      <button id="simBtn">Run</button>
+      <pre id="simResult"></pre>
+    </section>
 
+    <section id="batchSim">
       <h2>Batch Simulation</h2>
-      <input id="batchStart" type="text" maxlength="5" placeholder="Starting guess" />
-      <input id="batchCount" type="number" placeholder="Games" value="20" />
-      <input id="batchSpeed" type="number" placeholder="Speed (ms)" value="200" />
-      <button id="runBatchBtn">Run Batch</button>
-      <div id="batchResult" style="white-space: pre-wrap;"></div>
+      <input id="batchStart" type="text" maxlength="5" placeholder="start word"/>
+      <input id="batchCount" type="number" value="20" min="1"/>
+      <input id="batchSpeed" type="number" value="200" min="50"/>
+      <button id="batchBtn">Run Batch</button>
+      <pre id="batchResult"></pre>
     </section>
   </main>
-
   <script src="script.js"></script>
 </body>
 </html>
