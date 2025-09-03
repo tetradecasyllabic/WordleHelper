@@ -86,7 +86,6 @@ function resetAll(){
   updateStatsAndSuggestions();
 }
 
-// ✅ duplicate letters handled properly
 function getPattern(guess, solution){
   const g=guess.split(""); 
   const s=solution.split(""); 
@@ -175,6 +174,7 @@ async function computeAndShowSuggestions(){
   results.sort((a,b)=>a.expectedRemaining!==b.expectedRemaining?a.expectedRemaining-b.expectedRemaining:b.entropy-b.entropy);
   lastSuggestionResults=results;
 
+  // 👇 FIXED: show ALL possible if < 10
   const topResults = results.length <= 10 ? results : results.slice(0,10);
   expectedAfterEl.textContent=topResults.length?Math.round(topResults[0].expectedRemaining):"—";
 
