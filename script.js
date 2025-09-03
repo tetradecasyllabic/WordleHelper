@@ -89,25 +89,33 @@ function cycleTileState(tile){
 /* ---------- FEEDBACK APPLYING & FILTERING ---------- */
 
 function onApplyFeedback(){
-  // get last row (most recent)
-  const rows = boardEl.querySelectorAll(".row");
-  if (!rows.length){
-    alert("Add a guess row first.");
-    return;
-  }
-  const row = rows[rows.length-1];
-  const guess = row.dataset.guess;
-  const states = Array.from(row.querySelectorAll(".tile")).map(t => parseInt(t.dataset.state || "0",10));
-  const pattern = states.join("");
+  // start over from full dictionary
+  possibleWords = [...allWords];
+  bannedLetters = new Set();
 
-  // track banned letters (state = 0 and not seen as 1/2 elsewhere in this guess)
-  states.forEach((s,i) => {
-    if (s === 0) {
-      // only ban if this letter not marked green/yellow in same guess
-      const stillUsed = states.some((st,j)=> (st===1||st===2) && guess[j]===guess[i]);
-      if (!stillUsed) bannedLetters.add(guess[i]);
-    }
+  // apply ALL rows on board
+  const rows = boardEl.querySelectorAll(".row");
+  rows.forEach(row => {
+    const guess = row.dataset.guess;
+    const states = Array.from(row.querySelectorAll(".tile")).map(t => parseInt(t.dataset.state || "0",10));
+    const pattern = states.join("");
+
+    // update banned letters for this guess
+    states.forEach((s,i) => {
+      if (s === 0) {
+        const stillUsed = states.some((st,j)=> (st===1||st===2) && guess[j]===guess[i]);
+        if (!stillUsed) bannedLetters.add(guess[i]);
+      }
+    });
+
+    // filter against this guess feedback
+    possibleWords = possibleWords.filter(sol => getPattern(guess, sol) === pattern);
   });
+
+  setStatus(`Applied all feedback. Remaining: ${possibleWords.length}`);
+  updateStatsAndSuggestions();
+}
+
 
   // filter possibleWords
   possibleWords = possibleWords.filter(sol => getPattern(guess, sol) === pattern);
