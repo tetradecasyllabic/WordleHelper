@@ -14,6 +14,8 @@ const computingEl = document.getElementById("computing");
 const possibleCountEl = document.getElementById("possibleCount");
 const minGuessesEl = document.getElementById("minGuesses");
 const expectedAfterEl = document.getElementById("expectedAfter");
+const possibleAnswersWrap = document.getElementById("possibleAnswersWrap");
+const possibleAnswersEl = document.getElementById("possibleAnswers");
 
 document.addEventListener("DOMContentLoaded", init);
 addRowBtn.addEventListener("click", onAddRow);
@@ -82,6 +84,8 @@ function resetAll(){
   possibleWords=[...allWords];
   boardEl.innerHTML="";
   suggestionsEl.innerHTML="";
+  possibleAnswersWrap.classList.add("hidden");
+  possibleAnswersEl.innerHTML="";
   setStatus(`Reset — ${possibleWords.length} words loaded.`);
   updateStatsAndSuggestions();
 }
@@ -174,7 +178,6 @@ async function computeAndShowSuggestions(){
   results.sort((a,b)=>a.expectedRemaining!==b.expectedRemaining?a.expectedRemaining-b.expectedRemaining:b.entropy-b.entropy);
   lastSuggestionResults=results;
 
-  // 👇 FIXED: show ALL possible if < 10
   const topResults = results.length <= 10 ? results : results.slice(0,10);
   expectedAfterEl.textContent=topResults.length?Math.round(topResults[0].expectedRemaining):"—";
 
@@ -196,6 +199,20 @@ async function computeAndShowSuggestions(){
     li.appendChild(left); 
     li.appendChild(useBtn); 
     suggestionsEl.appendChild(li);
+  }
+
+  // 👇 NEW: show possible answers if <50
+  if(possibleWords.length>0 && possibleWords.length<50){
+    possibleAnswersWrap.classList.remove("hidden");
+    possibleAnswersEl.innerHTML="";
+    for(const w of possibleWords){
+      const li=document.createElement("li");
+      li.textContent=w.toUpperCase();
+      possibleAnswersEl.appendChild(li);
+    }
+  } else {
+    possibleAnswersWrap.classList.add("hidden");
+    possibleAnswersEl.innerHTML="";
   }
 
   computingEl.classList.add("hidden");
