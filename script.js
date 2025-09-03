@@ -16,24 +16,11 @@ const possibleCountEl = document.getElementById("possibleCount");
 const minGuessesEl = document.getElementById("minGuesses");
 const expectedAfterEl = document.getElementById("expectedAfter");
 
-const simStartEl = document.getElementById("simStart");
-const simTargetEl = document.getElementById("simTarget");
-const simBtn = document.getElementById("simBtn");
-const simResultEl = document.getElementById("simResult");
-
-const batchStartEl = document.getElementById("batchStart");
-const batchCountEl = document.getElementById("batchCount");
-const batchSpeedEl = document.getElementById("batchSpeed");
-const batchBtn = document.getElementById("batchBtn");
-const batchResultEl = document.getElementById("batchResult");
-
 document.addEventListener("DOMContentLoaded", init);
 addRowBtn.addEventListener("click", onAddRow);
 applyBtn.addEventListener("click", onApplyFeedback);
 resetBtn.addEventListener("click", resetAll);
 guessInput().addEventListener("keydown", (e) => { if (e.key === "Enter") onAddRow(); });
-simBtn.addEventListener("click", singleWordSimulation);
-batchBtn.addEventListener("click", batchSimulation);
 
 async function init(){
   setStatus("Loading words...");
@@ -105,8 +92,6 @@ function getPattern(guess,solution){
   return pat.join("");
 }
 
-let lastSuggestionResults=[];
-
 async function updateStatsAndSuggestions(){
   possibleCountEl.textContent=possibleWords.length;
   const bitsPerGuess=Math.log2(243);
@@ -158,7 +143,6 @@ async function computeSuggestions(pool){
 async function computeAndShowSuggestions(){
   suggestionsEl.innerHTML=""; computingEl.classList.remove("hidden"); await sleep(20);
   const results=await computeSuggestions(allWords);
-  lastSuggestionResults=results;
   const top10=results.slice(0,10);
   expectedAfterEl.textContent=top10.length?Math.round(top10[0].expectedRemaining):"—";
   suggestionsEl.innerHTML="";
@@ -171,56 +155,4 @@ async function computeAndShowSuggestions(){
     li.appendChild(btn); suggestionsEl.appendChild(li);
   }
   computingEl.classList.add("hidden");
-}
-
-function patternToEmojis(pat){ return pat.split("").map(d=>d==="2"?"🟩":d==="1"?"🟨":"⬛").join(""); }
-
-async function singleWordSimulation(){
-  const start=simStartEl.value.trim().toLowerCase();
-  const target=simTargetEl.value.trim().toLowerCase();
-  if(!allWords.includes(start)||!allWords.includes(target)){ alert("Invalid word"); return; }
-  let guess=start, possible=[...allWords], moves=0;
-  simResultEl.textContent="";
-  while(guess!==target && moves<10){
-    moves++;
-    const pat=getPattern(guess,target);
-    simResultEl.textContent=`Move ${moves}: ${guess.toUpperCase()} → ${patternToEmojis(pat)}`;
-    await sleep(500);
-    possible=possible.filter(w=>getPattern(guess,w)===pat);
-    if(guess===target) break;
-    if(!possible.length) break;
-    let results;
-    if(moves<=3){ results=await computeSuggestions(allWords); }
-    else{ results=await computeSuggestions(possible); }
-    guess=results[0].word;
-  }
-  if(guess===target){ simResultEl.textContent+=`\nSolved in ${moves>6?7:moves} moves ✅`; }
-  else{ simResultEl.textContent+=`\nFailed ❌ target was ${target.toUpperCase()}`; }
-}
-
-async function batchSimulation(){
-  const start=batchStartEl.value.trim().toLowerCase();
-  const games=+batchCountEl.value||20;
-  const speed=+batchSpeedEl.value||200;
-  let total=0;
-  batchResultEl.textContent="";
-  for(let g=1;g<=games;g++){
-    const target=allWords[Math.floor(Math.random()*allWords.length)];
-    let guess=start, possible=[...allWords], moves=0;
-    while(guess!==target && moves<10){
-      moves++;
-      const pat=getPattern(guess,target);
-      possible=possible.filter(w=>getPattern(guess,w)===pat);
-      if(guess===target) break;
-      if(!possible.length) break;
-      let results;
-      if(moves<=3){ results=await computeSuggestions(allWords); }
-      else{ results=await computeSuggestions(possible); }
-      guess=results[0].word;
-      await sleep(speed);
-    }
-    const solved=guess===target?(moves>6?7:moves):7;
-    total+=solved;
-    batchResultEl.textContent=`Game ${g}: ${target.toUpperCase()} → ${guess.toUpperCase()} in ${solved} moves\nAvg: ${(total/g).toFixed(2)}`;
-  }
 }
