@@ -303,7 +303,6 @@ function renderHeatmap() {
         tile.style.backgroundColor = `rgb(${newR}, ${newG}, ${newB})`;
         
         // Change text color if the tile is very bright (high frequency) for contrast
-        // We use 0.4 as a threshold to switch text from white to dark.
         if (normalizedFreq > 0.4) {
             tile.classList.add('light-text');
         } else {
