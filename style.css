@@ -163,7 +163,7 @@ main {
 
 #possibleAnswers li:hover { background: #3a3a3c; }
 
-/* --- NEW: Heatmap Styles --- */
+/* --- REVISED HEATMAP STYLES for better visual heat effect --- */
 
 #heatmapSection {
   margin-bottom: 20px;
@@ -182,20 +182,19 @@ main {
 
 #heatmapGrid {
   display: grid;
-  /* 5 columns, same width as your tiles */
   grid-template-columns: repeat(5, var(--tile-size));
-  gap: 8px; /* Same gap as your rows */
-  justify-content: center; /* Center the 5 columns */
+  gap: 8px;
+  justify-content: center;
 }
 
 .heatmap-column {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 2px;
-  border: 1px solid #3a3a3c;
-  border-radius: 4px;
-  max-height: 400px; /* Limit height */
+  gap: 4px;
+  padding: 4px;
+  background: #212122; /* Slightly darker than panel for contrast */
+  border-radius: 6px;
+  max-height: 450px;
   overflow-y: auto;
 }
 
@@ -204,27 +203,36 @@ main {
 .heatmap-column::-webkit-scrollbar-thumb { background: var(--accent-gray); border-radius: 2px; }
 
 .heatmap-tile {
-  /* Mimic the size and shape of a regular tile */
-  height: 30px; 
-  padding: 0 4px;
+  height: 36px; 
+  padding: 0 6px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-radius: 4px;
   font-size: 14px;
-  color: var(--text);
-  /* Base color will be set by JS using a gradient from panel color to green */
-  background: #2a2a2b; 
+  color: var(--text); /* Default white text */
+  background: var(--bg); /* Start color will be set by JS */
   transition: background-color 0.3s;
   font-weight: 500;
 }
 
+.heatmap-tile:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 5px rgba(106, 170, 100, 0.7); /* Stronger green glow */
+}
+
 .heatmap-letter {
-  font-weight: bold;
-  font-size: 1.1em;
+  font-weight: 800;
+  font-size: 1.2em;
+  margin-right: 8px;
 }
 
 .heatmap-percent {
   font-size: 0.8em;
   color: var(--muted);
+}
+
+/* New: Class to ensure text readability on the brightest (hottest) tiles */
+.heatmap-tile.light-text {
+  color: #000; /* Change text color to black/dark for contrast against bright green */
 }
