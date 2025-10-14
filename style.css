@@ -163,7 +163,7 @@ main {
 
 #possibleAnswers li:hover { background: #3a3a3c; }
 
-/* --- REVISED HEATMAP STYLES for better visual heat effect --- */
+/* --- HEATMAP STYLES --- */
 
 #heatmapSection {
   margin-bottom: 20px;
@@ -211,14 +211,14 @@ main {
   border-radius: 4px;
   font-size: 14px;
   color: var(--text); /* Default white text */
-  background: var(--bg); /* Start color will be set by JS */
+  /* Background will be set by JS */
   transition: background-color 0.3s;
   font-weight: 500;
 }
 
 .heatmap-tile:hover {
   transform: scale(1.02);
-  box-shadow: 0 0 5px rgba(106, 170, 100, 0.7); /* Stronger green glow */
+  box-shadow: 0 0 5px rgba(106, 170, 100, 0.7); /* Green glow */
 }
 
 .heatmap-letter {
@@ -232,7 +232,7 @@ main {
   color: var(--muted);
 }
 
-/* New: Class to ensure text readability on the brightest (hottest) tiles */
+/* Class to ensure text readability on the brightest (hottest) tiles */
 .heatmap-tile.light-text {
   color: #000; /* Change text color to black/dark for contrast against bright green */
 }
