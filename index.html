@@ -1,238 +1,52 @@
-:root {
-  --bg: #121213;
-  --panel: #1a1a1b;
-  --text: #ffffff;
-  --muted: #9b9b9b;
-  --tile-size: 56px;
-  --accent-green: #6aaa64;
-  --accent-yellow: #c9b458;
-  --accent-gray: #3a3a3c;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Wordle Helper</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main>
+    <section class="controls">
+      <input id="guessInput" type="text" maxlength="5" placeholder="Type 5-letter guess" />
+      <button id="addRowBtn">Add Row</button>
+      <button id="applyBtn">Apply Feedback</button>
+      <button id="resetBtn">Reset</button>
+            <button id="toggleHeatmapBtn">Show Letter Heatmap</button>
+      <div id="status">Loaded 14855 words...</div>
+    </section>
 
-* { box-sizing: border-box; }
+    <section id="boardSection">
+      <div id="board"></div>
+    </section>
+    
+        <section id="heatmapSection" class="hidden">
+      <h2>Positional Letter Frequencies (Heatmap)</h2>
+      <div id="heatmapGrid">
+              </div>
+    </section>
 
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  display: flex;
-  min-height: 100vh;
-  justify-content: center;
-  align-items: flex-start;
-}
+    <section id="info">
+      <div id="stats">
+        <strong>Possible solutions:</strong> <span id="possibleCount">—</span><br/>
+        <strong>Theoretical min guesses:</strong> <span id="minGuesses">—</span><br/>
+        <strong>Expected remaining after best guess:</strong> <span id="expectedAfter">—</span>
+      </div>
 
-main {
-  width: 100%;
-  max-width: 980px;
-  padding: 24px;
-}
+      <div id="suggestionsWrap">
+        <h2>Top Suggestions</h2>
+        <div id="computing" class="hidden">Computing suggestions... ⏳</div>
+        <ol id="suggestions"></ol>
+      </div>
 
-.controls {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
+      <div id="possibleAnswersWrap">
+        <h2>Possible Answers</h2>
+        <ul id="possibleAnswers"></ul>
+      </div>
+    </section>
+  </main>
 
-.controls input {
-  padding: 8px;
-  font-size: 16px;
-  border-radius: 6px;
-  border: 1px solid var(--muted);
-  background: var(--panel);
-  color: var(--text);
-  text-transform: uppercase;
-}
-
-.controls button {
-  background: var(--panel);
-  border: 1px solid var(--muted);
-  border-radius: 6px;
-  padding: 8px 12px;
-  color: var(--text);
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.controls button:hover { background: #2a2a2b; }
-
-#board {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-  align-items: center;
-}
-
-.row {
-  display: grid;
-  grid-template-columns: repeat(5, var(--tile-size));
-  gap: 8px;
-}
-
-.tile {
-  width: var(--tile-size);
-  height: var(--tile-size);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 22px;
-  border-radius: 6px;
-  border: 2px solid #3b3b3b;
-  color: var(--text);
-  user-select: none;
-  cursor: pointer;
-  text-transform: uppercase;
-  background: var(--bg);
-  transition: transform 0.15s ease, background 0.2s;
-}
-
-.tile:hover { transform: scale(1.05); }
-
-.tile.state-0 { background: var(--accent-gray); color: #fff; border-color: var(--accent-gray); }
-.tile.state-1 { background: var(--accent-yellow); color: #000; border-color: var(--accent-yellow); }
-.tile.state-2 { background: var(--accent-green); color: #fff; border-color: var(--accent-green); }
-
-#info {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  align-items: flex-start;
-}
-
-#stats, #suggestionsWrap, #possibleAnswersWrap {
-  background: var(--panel);
-  padding: 12px;
-  border-radius: 8px;
-  flex: 1 1 300px;
-}
-
-#suggestionsWrap h2, #possibleAnswersWrap h2 {
-  margin-top: 0;
-}
-
-#suggestions, #possibleAnswers {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-#suggestions li, #possibleAnswers li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-  border-bottom: 1px solid #2a2a2b;
-}
-
-.sugg-left { display: flex; flex-direction: column; }
-.sugg-word { font-weight: bold; font-size: 18px; }
-.sugg-meta { font-size: 13px; color: var(--muted); }
-
-.useBtn {
-  background: var(--accent-green);
-  color: #fff;
-  border: none;
-  padding: 4px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.useBtn:hover { background: #599c55; }
-
-.hidden { display: none; }
-
-/* NEW: highlight possible answers letters as tiles */
-#possibleAnswers li {
-  display: inline-block;
-  margin: 2px 4px;
-  padding: 4px 6px;
-  background: #2a2a2b;
-  border-radius: 4px;
-  font-weight: 600;
-  text-transform: uppercase;
-  cursor: default;
-  transition: background 0.2s;
-}
-
-#possibleAnswers li:hover { background: #3a3a3c; }
-
-/* --- HEATMAP STYLES --- */
-
-#heatmapSection {
-  margin-bottom: 20px;
-  padding: 12px;
-  background: var(--panel);
-  border-radius: 8px;
-}
-
-#heatmapSection h2 {
-  margin-top: 0;
-  font-size: 1.2em;
-  border-bottom: 1px solid #2a2a2b;
-  padding-bottom: 8px;
-  margin-bottom: 12px;
-}
-
-#heatmapGrid {
-  display: grid;
-  grid-template-columns: repeat(5, var(--tile-size));
-  gap: 8px;
-  justify-content: center;
-}
-
-.heatmap-column {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 4px;
-  background: #212122; /* Slightly darker than panel for contrast */
-  border-radius: 6px;
-  max-height: 450px;
-  overflow-y: auto;
-}
-
-/* Scrollbar styling to match the dark theme */
-.heatmap-column::-webkit-scrollbar { width: 4px; }
-.heatmap-column::-webkit-scrollbar-thumb { background: var(--accent-gray); border-radius: 2px; }
-
-.heatmap-tile {
-  height: 36px; 
-  padding: 0 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 4px;
-  font-size: 14px;
-  color: var(--text); /* Default white text */
-  /* Background will be set by JS */
-  transition: background-color 0.3s;
-  font-weight: 500;
-}
-
-.heatmap-tile:hover {
-  transform: scale(1.02);
-  box-shadow: 0 0 5px rgba(106, 170, 100, 0.7); /* Green glow */
-}
-
-.heatmap-letter {
-  font-weight: 800;
-  font-size: 1.2em;
-  margin-right: 8px;
-}
-
-.heatmap-percent {
-  font-size: 0.8em;
-  color: var(--muted);
-}
-
-/* Class to ensure text readability on the brightest (hottest) tiles */
-.heatmap-tile.light-text {
-  color: #000; /* Change text color to black/dark for contrast against bright green */
-}
+  <script src="script.js"></script>
+</body>
+</html>
