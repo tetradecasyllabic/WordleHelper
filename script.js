@@ -35,6 +35,8 @@ toggleHeatmapBtn.addEventListener("click", toggleHeatmap);
 async function init() {
   setStatus("Loading words...");
   try {
+    // NOTE: This requires a 'words.txt' file in the same directory.
+    // For testing without a server, you might need to use a hardcoded array.
     const r = await fetch(RAW_URL, { cache: "no-cache" });
     const txt = await r.text();
     allWords = txt.split(/\r?\n/).map(s => s.trim().toLowerCase()).filter(Boolean);
@@ -42,8 +44,13 @@ async function init() {
     setStatus(`Loaded ${allWords.length} words.`);
     updateStatsAndSuggestions();
   } catch(err) {
-    console.error(err);
-    setStatus("Failed to load words.");
+    console.error("Error loading words. Ensure 'words.txt' exists and is accessible.", err);
+    setStatus("Failed to load words. (Check console)");
+    // Fallback for demonstration if words.txt fails
+    allWords = ["crane", "slate", "trace", "roast", "audio", "adieu", "raise", "about", "later"];
+    possibleWords = [...allWords];
+    setStatus(`Loaded ${allWords.length} fallback words.`);
+    updateStatsAndSuggestions();
   }
 }
 
