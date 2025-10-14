@@ -17,7 +17,7 @@ const expectedAfterEl = document.getElementById("expectedAfter");
 const possibleAnswersWrap = document.getElementById("possibleAnswersWrap");
 const possibleAnswersEl = document.getElementById("possibleAnswers");
 
-// NEW ELEMENT REFERENCES
+// NEW ELEMENT REFERENCES for Heatmap
 const toggleHeatmapBtn = document.getElementById("toggleHeatmapBtn");
 const heatmapSection = document.getElementById("heatmapSection");
 const heatmapGridEl = document.getElementById("heatmapGrid");
@@ -259,9 +259,10 @@ function renderHeatmap() {
   // Clear previous heatmap
   heatmapGridEl.innerHTML = '';
   
-  // 2. Define the color range (from dark panel to accent green)
-  const startColor = { r: 0x1a, g: 0x1a, b: 0x1b }; // --panel (#1a1a1b)
-  const endColor = { r: 0x6a, g: 0xaa, b: 0x64 }; // --accent-green (#6aaa64)
+  // 2. Define the color range (from dark background to accent green)
+  // Hex values for --bg (#121213) and --accent-green (#6aaa64)
+  const startColor = { r: 0x12, g: 0x12, b: 0x13 }; 
+  const endColor = { r: 0x6a, g: 0xaa, b: 0x64 }; 
   
   // 3. Render 5 columns
   for (let i = 0; i < 5; i++) {
@@ -275,7 +276,8 @@ function renderHeatmap() {
     const totalWords = possibleWords.length || 1;
 
     for (const [letter, count] of sortedLetters) {
-        const normalizedFreq = count / maxTotalCount; // 0 to 1
+        // Normalized frequency (0 to 1) for color interpolation
+        const normalizedFreq = count / maxTotalCount; 
         const percent = ((count / totalWords) * 100).toFixed(1);
 
         const tile = document.createElement('div');
@@ -299,6 +301,14 @@ function renderHeatmap() {
         const newB = Math.round(startColor.b + (endColor.b - startColor.b) * normalizedFreq);
 
         tile.style.backgroundColor = `rgb(${newR}, ${newG}, ${newB})`;
+        
+        // Change text color if the tile is very bright (high frequency) for contrast
+        // We use 0.4 as a threshold to switch text from white to dark.
+        if (normalizedFreq > 0.4) {
+            tile.classList.add('light-text');
+        } else {
+            tile.classList.remove('light-text');
+        }
     }
 
     heatmapGridEl.appendChild(column);
@@ -309,7 +319,7 @@ function renderHeatmap() {
 // Function to toggle the visibility of the heatmap
 function toggleHeatmap() {
   if (heatmapSection.classList.contains("hidden")) {
-      // Show the heatmap
+      // Show the heatmap and render the data
       renderHeatmap();
       heatmapSection.classList.remove("hidden");
       toggleHeatmapBtn.textContent = 'Hide Letter Heatmap';
