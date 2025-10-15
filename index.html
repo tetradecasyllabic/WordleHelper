@@ -1,46 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Wordle Helper</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8" />
+  <title>Wordle Helper</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main>
-    <section class="controls">
-      <input id="guessInput" type="text" maxlength="5" placeholder="Type 5-letter guess" />
-      <button id="addRowBtn">Add Row</button>
-      <button id="applyBtn">Apply Feedback</button>
-      <button id="resetBtn">Reset</button>
-      <div id="status">Loading words...</div>
+  <main>
+    <section class="controls">
+      <input id="guessInput" type="text" maxlength="5" placeholder="Type 5-letter guess" />
+      <button id="addRowBtn">Add Row</button>
+      <button id="applyBtn">Apply Feedback</button>
+      <button id="resetBtn">Reset</button>
+      <button id="showHeatmapBtn">Heat Map</button>       <div id="status">Loading words...</div>
+    </section>
+
+    <section id="boardSection">
+      <div id="board"></div>
+    </section>
+    
+    <section id="heatmapSection" class="hidden">
+        <h2>Position Heat Map (from Possible Answers)</h2>
+        <div id="heatmap"></div>
     </section>
 
-    <section id="boardSection">
-      <div id="board"></div>
-    </section>
+    <section id="info">
+      <div id="stats">
+        <strong>Possible solutions:</strong> <span id="possibleCount">—</span><br/>
+        <strong>Theoretical min guesses:</strong> <span id="minGuesses">—</span><br/>
+        <strong>Expected remaining after best guess:</strong> <span id="expectedAfter">—</span>
+      </div>
 
-    <section id="info">
-      <div id="stats">
-        <strong>Possible solutions:</strong> <span id="possibleCount">—</span><br/>
-        <strong>Theoretical min guesses:</strong> <span id="minGuesses">—</span><br/>
-        <strong>Expected remaining after best guess:</strong> <span id="expectedAfter">—</span>
-      </div>
+      <div id="suggestionsWrap">
+        <h2>Top Suggestions</h2>
+        <div id="computing" class="hidden">Computing suggestions... ⏳</div>
+        <ol id="suggestions"></ol>
+      </div>
 
-      <div id="suggestionsWrap">
-        <h2>Top Suggestions</h2>
-        <div id="computing" class="hidden">Computing suggestions... ⏳</div>
-        <ol id="suggestions"></ol>
-      </div>
+      <div id="possibleAnswersWrap" class="hidden">
+        <h2>Possible Answers</h2>
+        <ul id="possibleAnswers"></ul>
+      </div>
+    </section>
+  </main>
 
-      <!-- NEW SECTION -->
-      <div id="possibleAnswersWrap" class="hidden">
-        <h2>Possible Answers</h2>
-        <ul id="possibleAnswers"></ul>
-      </div>
-    </section>
-  </main>
-
-  <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
