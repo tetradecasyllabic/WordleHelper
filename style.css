@@ -1,93 +1,96 @@
 :root {
-  --bg: #121213;
-  --panel: #1a1a1b;
-  --text: #ffffff;
-  --muted: #9b9b9b;
-  --tile-size: 56px;
-  --accent-green: #6aaa64;
-  --accent-yellow: #c9b458;
-  --accent-gray: #3a3a3c;
+  --bg: #121213;
+  --panel: #1a1a1b;
+  --text: #ffffff;
+  --muted: #9b9b9b;
+  --tile-size: 56px;
+  --accent-green: #6aaa64;
+  --accent-yellow: #c9b458;
+  --accent-gray: #3a3a3c;
+  /* Heatmap color: interpolate between a cool color and a hot color */
+  --heat-start: #3a3a3c; /* Dark/low count */
+  --heat-end: #6aaa64; /* Green/high count (like the correct Wordle tile) */
 }
 
 * { box-sizing: border-box; }
 
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  display: flex;
-  min-height: 100vh;
-  justify-content: center;
-  align-items: flex-start;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  display: flex;
+  min-height: 100vh;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 main {
-  width: 100%;
-  max-width: 980px;
-  padding: 24px;
+  width: 100%;
+  max-width: 980px;
+  padding: 24px;
 }
 
 .controls {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .controls input {
-  padding: 8px;
-  font-size: 16px;
-  border-radius: 6px;
-  border: 1px solid var(--muted);
-  background: var(--panel);
-  color: var(--text);
-  text-transform: uppercase;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid var(--muted);
+  background: var(--panel);
+  color: var(--text);
+  text-transform: uppercase;
 }
 
 .controls button {
-  background: var(--panel);
-  border: 1px solid var(--muted);
-  border-radius: 6px;
-  padding: 8px 12px;
-  color: var(--text);
-  cursor: pointer;
-  transition: background 0.2s;
+  background: var(--panel);
+  border: 1px solid var(--muted);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 .controls button:hover { background: #2a2a2b; }
 
 #board {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  align-items: center;
 }
 
 .row {
-  display: grid;
-  grid-template-columns: repeat(5, var(--tile-size));
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(5, var(--tile-size));
+  gap: 8px;
 }
 
 .tile {
-  width: var(--tile-size);
-  height: var(--tile-size);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 22px;
-  border-radius: 6px;
-  border: 2px solid #3b3b3b;
-  color: var(--text);
-  user-select: none;
-  cursor: pointer;
-  text-transform: uppercase;
-  background: var(--bg);
-  transition: transform 0.15s ease, background 0.2s;
+  width: var(--tile-size);
+  height: var(--tile-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 22px;
+  border-radius: 6px;
+  border: 2px solid #3b3b3b;
+  color: var(--text);
+  user-select: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  background: var(--bg);
+  transition: transform 0.15s ease, background 0.2s;
 }
 
 .tile:hover { transform: scale(1.05); }
@@ -97,37 +100,37 @@ main {
 .tile.state-2 { background: var(--accent-green); color: #fff; border-color: var(--accent-green); }
 
 #info {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-start;
 }
 
 #stats, #suggestionsWrap, #possibleAnswersWrap {
-  background: var(--panel);
-  padding: 12px;
-  border-radius: 8px;
-  flex: 1 1 300px;
+  background: var(--panel);
+  padding: 12px;
+  border-radius: 8px;
+  flex: 1 1 300px;
 }
 
 #suggestionsWrap h2, #possibleAnswersWrap h2 {
-  margin-top: 0;
+  margin-top: 0;
 }
 
 #suggestions, #possibleAnswers {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  max-height: 400px;
-  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
-#suggestions li, #possibleAnswers li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-  border-bottom: 1px solid #2a2a2b;
+#suggestions li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #2a2a2b;
 }
 
 .sugg-left { display: flex; flex-direction: column; }
@@ -135,30 +138,117 @@ main {
 .sugg-meta { font-size: 13px; color: var(--muted); }
 
 .useBtn {
-  background: var(--accent-green);
-  color: #fff;
-  border: none;
-  padding: 4px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s;
+  background: var(--accent-green);
+  color: #fff;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 .useBtn:hover { background: #599c55; }
 
 .hidden { display: none; }
 
-/* NEW: highlight possible answers letters as tiles */
+/* Styling for Possible Answers */
+#possibleAnswers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 #possibleAnswers li {
-  display: inline-block;
-  margin: 2px 4px;
-  padding: 4px 6px;
-  background: #2a2a2b;
-  border-radius: 4px;
-  font-weight: 600;
-  text-transform: uppercase;
-  cursor: default;
-  transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 4px 8px;
+  background: #2a2a2b;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  cursor: default;
+  transition: background 0.2s;
+  border-bottom: none;
 }
 
 #possibleAnswers li:hover { background: #3a3a3c; }
+
+
+/* --- NEW HEATMAP STYLES --- */
+
+#heatmapSection {
+  background: var(--panel);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+#heatmapSection h2 {
+  margin-top: 0;
+  border-bottom: 1px solid #2a2a2b;
+  padding-bottom: 8px;
+}
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5 columns for 5 positions */
+  gap: 8px;
+}
+
+.heatmap-header {
+  text-align: center;
+  font-weight: bold;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.heatmap-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: stretch;
+  padding: 4px;
+  background: rgba(0,0,0,0.1); /* Subtle dark background for the column */
+  border-radius: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.heatmap-tile {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 16px;
+  text-transform: uppercase;
+  color: var(--text);
+  /* Heatmap background color using the --heat variable from JS */
+  background: linear-gradient(
+    to right, 
+    var(--heat-end), 
+    var(--heat-start)
+  ) var(--heat);
+  background-blend-mode: multiply; /* Blends the color with a solid color */
+  background-size: 200% 100%;
+  background-position: calc(100% - var(--heat) * 100%) 0;
+  transition: background-position 0.3s ease;
+}
+
+.heatmap-count {
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--text);
+  background: rgba(0,0,0,0.3);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* Optional: Scrollbar styling for a cleaner look */
+.heatmap-column::-webkit-scrollbar { width: 4px; }
+.heatmap-column::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 2px; }
+.heatmap-column::-webkit-scrollbar-track { background: transparent; }
